@@ -50,12 +50,18 @@ export class SessionService {
   }
 
   isTokenExpired(): boolean {
-    const token = this.getToken();
-    if (!token) return true;
+  const token = this.getToken();
+  if (!token) return true;
 
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const expiration = payload.exp * 1000;
-    return Date.now() > expiration;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expiration = payload.exp * 1000;
+      return Date.now() > expiration;
+    } catch (e) {
+      console.warn('Token mal formado, limpiando sesión...', e);
+      this.clearSession();
+      return true;
+    }
   }
 
   clearSession() {
