@@ -10,10 +10,18 @@ import { PasswordCredentials } from '../../pages/admin/change-password/change-pa
 export class AuthService {
   private apiUrl = `${API_ENDPOINTS.auth}`;
 
-  // MOCK - usuarios de prueba
+  // MOCK - usuarios reales con contraseña temporal 123456
   private mockUsers = [
-    { email: 'admin@licodist.com',   password: '123456', role: 'ADMIN' },
-    { email: 'usuario@licodist.com', password: '123456', role: 'USER'  },
+    { username: 'SUPER.USUARIO',    email: 'super.usuario@licodist.com',    password: '123456', role: 'SUPER_ADMIN' },
+    { username: 'JORGE.BARBOSA',    email: 'jorge.barbosa@licodist.com',    password: '123456', role: 'ADMIN'       },
+    { username: 'DILSON.OTALVARO',  email: 'dilson.otalvaro@licodist.com',  password: '123456', role: 'USER'        },
+    { username: 'MARCELA.ARIAS',    email: 'marcela.arias@licodist.com',    password: '123456', role: 'USER'        },
+    { username: 'JULIAN.VALENCIA',  email: 'julian.valencia@licodist.com',  password: '123456', role: 'USER'        },
+    { username: 'JUAN.GIRALDO',     email: 'juan.giraldo@licodist.com',     password: '123456', role: 'USER'        },
+    { username: 'SARA.BOTERO',      email: 'sara.botero@licodist.com',      password: '123456', role: 'USER'        },
+    { username: 'VIVIANA.ARIAS',    email: 'viviana.arias@licodist.com',    password: '123456', role: 'USER'        },
+    { username: 'CARLOS.MURIEL',    email: 'carlos.muriel@licodist.com',    password: '123456', role: 'USER'        },
+    { username: 'YULIANA.GUZMAN',   email: 'yuliana.guzman@licodist.com',   password: '123456', role: 'USER'        },
   ];
 
   constructor(
@@ -28,13 +36,16 @@ export class AuthService {
     // return this.http.post(`${this.apiUrl}/login`, credentials);
 
     const found = this.mockUsers.find(
-      u => u.email === credentials.email && u.password === credentials.password
+      u =>
+        (u.email === credentials.email || u.username === credentials.email) &&
+        u.password === credentials.password
     );
 
     if (found) {
       const header  = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
       const payload = btoa(JSON.stringify({
         sub: found.email,
+        username: found.username,
         role: found.role,
         exp: Math.floor(Date.now() / 1000) + 3600
       }));

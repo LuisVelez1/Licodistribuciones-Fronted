@@ -11,14 +11,18 @@ import { UserA } from '../models/user-admin.model';
 export class UserService {
   private apiUrl = `${API_ENDPOINTS.users}`;
 
-  // MOCK - usuarios de prueba
+  // MOCK - usuarios reales
   private mockUsers: UserA[] = [
-    { id: '1', firstName: 'Carlos',    lastName: 'Ramírez',  email: 'c.ramirez@licodist.com',   phone: '3001234567', position: 'Coordinador Comercial', sede: 'Bogotá',       area: 'Ventas',     status: 'ACTIVE' },
-    { id: '2', firstName: 'Valentina', lastName: 'Torres',   email: 'v.torres@licodist.com',    phone: '3107654321', position: 'Analista de Logística', sede: 'Medellín',     area: 'Logística',  status: 'ACTIVE' },
-    { id: '3', firstName: 'Andrés',    lastName: 'Gómez',    email: 'a.gomez@licodist.com',     phone: '3209876543', position: 'Jefe de Bodega',        sede: 'Cali',         area: 'Operaciones',status: 'ACTIVE' },
-    { id: '4', firstName: 'Laura',     lastName: 'Martínez', email: 'l.martinez@licodist.com',  phone: '3151122334', position: 'Directora de RRHH',     sede: 'Bogotá',       area: 'RRHH',       status: 'ACTIVE' },
-    { id: '5', firstName: 'Miguel',    lastName: 'Herrera',  email: 'm.herrera@licodist.com',   phone: '3004455667', position: 'Vendedor Senior',       sede: 'Barranquilla', area: 'Ventas',     status: 'ACTIVE' },
-    { id: '6', firstName: 'Sofía',     lastName: 'Castro',   email: 's.castro@licodist.com',    phone: '3118899001', position: 'Contadora',             sede: 'Bogotá',       area: 'Finanzas',   status: 'ACTIVE' },
+    { id: '1',  firstName: 'Super',    lastName: 'Usuario',  email: 'super.usuario@licodist.com',   phone: '3000000001', position: 'Súper Administrador',    sede: 'Bogotá',    area: 'Sistemas',    status: 'ACTIVE' },
+    { id: '2',  firstName: 'Jorge',    lastName: 'Barbosa',  email: 'jorge.barbosa@licodist.com',   phone: '3000000002', position: 'Administrador',           sede: 'Bogotá',    area: 'Sistemas',    status: 'ACTIVE' },
+    { id: '3',  firstName: 'Dilson',   lastName: 'Otalvaro', email: 'dilson.otalvaro@licodist.com', phone: '3000000003', position: 'Colaborador',             sede: 'Bogotá',    area: 'Operaciones', status: 'ACTIVE' },
+    { id: '4',  firstName: 'Marcela',  lastName: 'Arias',    email: 'marcela.arias@licodist.com',   phone: '3000000004', position: 'Colaboradora',            sede: 'Medellín',  area: 'RRHH',        status: 'ACTIVE' },
+    { id: '5',  firstName: 'Julián',   lastName: 'Valencia', email: 'julian.valencia@licodist.com', phone: '3000000005', position: 'Colaborador',             sede: 'Cali',      area: 'Ventas',      status: 'ACTIVE' },
+    { id: '6',  firstName: 'Juan',     lastName: 'Giraldo',  email: 'juan.giraldo@licodist.com',    phone: '3000000006', position: 'Colaborador',             sede: 'Bogotá',    area: 'Logística',   status: 'ACTIVE' },
+    { id: '7',  firstName: 'Sara',     lastName: 'Botero',   email: 'sara.botero@licodist.com',     phone: '3000000007', position: 'Colaboradora',            sede: 'Medellín',  area: 'Ventas',      status: 'ACTIVE' },
+    { id: '8',  firstName: 'Viviana',  lastName: 'Arias',    email: 'viviana.arias@licodist.com',   phone: '3000000008', position: 'Colaboradora',            sede: 'Bogotá',    area: 'Finanzas',    status: 'ACTIVE' },
+    { id: '9',  firstName: 'Carlos',   lastName: 'Muriel',   email: 'carlos.muriel@licodist.com',   phone: '3000000009', position: 'Colaborador',             sede: 'Cali',      area: 'Operaciones', status: 'ACTIVE' },
+    { id: '10', firstName: 'Yuliana',  lastName: 'Guzmán',   email: 'yuliana.guzman@licodist.com',  phone: '3000000010', position: 'Colaboradora',            sede: 'Bogotá',    area: 'RRHH',        status: 'ACTIVE' },
   ];
 
   constructor(
@@ -33,10 +37,10 @@ export class UserService {
     //   .pipe(map((info): User => ({ ...info, loginTime: info.loginTime instanceof Date ? info.loginTime.toISOString() : info.loginTime })));
 
     const mock: User = {
-      id: '1',
-      firstName: 'Carlos',
-      lastName: 'Ramírez',
-      email: 'admin@licodist.com',
+      id: '2',
+      firstName: 'Jorge',
+      lastName: 'Barbosa',
+      email: 'jorge.barbosa@licodist.com',
       loginTime: new Date().toISOString()
     } as User;
     return of(mock);

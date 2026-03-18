@@ -40,7 +40,7 @@ app-navbar {
   position: relative;
   left: 240px;
   width: calc(100% - 240px);
-  background-color: rgb(3, 26, 53);
+  background-color: var(--color-primary);
   color: white;
   text-align: center;
   padding: 1rem 0;

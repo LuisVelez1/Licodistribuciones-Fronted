@@ -1,11 +1,71 @@
 <div class="home-container">
   <main class="home-main">
-    <section class="media-section">
-      <h2>¡Bienvenido a la Intranet Lico Distribuciones!</h2>
-      <img src="assets/images/ImagenHome.jpg" alt="Imagen principal" class="media-image"/>
-      <img src="assets/images/ImagenHome2.jpg" alt="Imagen principal" class="media-image"/>
+    <section class="news-feed">
+      <h2 class="news-title">Noticias Internas</h2>
+
+      @for (post of newsPosts; track post.title; let i = $index) {
+        <article class="news-card">
+          <div class="news-header">
+            <span class="news-badge">{{ post.category }}</span>
+            <span class="news-date">{{ post.date }}</span>
+          </div>
+
+          <h3 class="news-post-title">{{ post.title }}</h3>
+
+          <div class="video-wrapper">
+            <video
+              [src]="post.videoSrc"
+              controls
+              preload="metadata"
+              class="news-video"
+            ></video>
+          </div>
+
+          <p class="news-description">{{ post.description }}</p>
+
+          <div class="comments-section">
+            <button class="toggle-comments-btn" (click)="toggleComments(i)">
+              <span>💬</span>
+              {{ post.comments.length }} comentario{{ post.comments.length !== 1 ? 's' : '' }}
+              <span class="chevron" [class.open]="post.showComments">▾</span>
+            </button>
+
+            @if (post.showComments) {
+              <div class="comments-body">
+                @for (comment of post.comments; track comment.time) {
+                  <div class="comment">
+                    <div class="comment-avatar">{{ comment.author[0] }}</div>
+                    <div class="comment-content">
+                      <span class="comment-author">{{ comment.author }}</span>
+                      <p class="comment-text">{{ comment.text }}</p>
+                      <span class="comment-time">{{ comment.time }}</span>
+                    </div>
+                  </div>
+                }
+
+                @if (post.comments.length === 0) {
+                  <p class="no-comments">Sé el primero en comentar.</p>
+                }
+
+                <div class="comment-input-row">
+                  <div class="comment-avatar me">Tú</div>
+                  <input
+                    type="text"
+                    placeholder="Escribe un comentario..."
+                    class="comment-input"
+                    [(ngModel)]="post.newComment"
+                    (keyup.enter)="addComment(i)"
+                  />
+                  <button class="send-btn" (click)="addComment(i)">➤</button>
+                </div>
+              </div>
+            }
+          </div>
+        </article>
+      }
     </section>
   </main>
+
   <aside class="home-right">
     <app-home-right></app-home-right>
   </aside>

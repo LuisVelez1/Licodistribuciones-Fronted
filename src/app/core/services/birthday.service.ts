@@ -15,15 +15,17 @@ export interface BirthdayResponse {
 export class BirthdayService {
   private readonly apiUrl = `${API_ENDPOINTS.birthdays}`;
 
-  // MOCK - cumpleaños de prueba
+  // MOCK - cumpleaños de usuarios reales (fechas aproximadas para presentación)
   private mockBirthdays: BirthdayResponse[] = [
-    { firstName: 'Carlos',    lastName: 'Ramírez',  birthdayDate: '1990-02-18', sede: 'Bogotá' },
-    { firstName: 'Valentina', lastName: 'Torres',   birthdayDate: '1995-02-22', sede: 'Medellín' },
-    { firstName: 'Andrés',    lastName: 'Gómez',    birthdayDate: '1988-03-05', sede: 'Cali' },
-    { firstName: 'Laura',     lastName: 'Martínez', birthdayDate: '1993-03-15', sede: 'Bogotá' },
-    { firstName: 'Miguel',    lastName: 'Herrera',  birthdayDate: '1991-04-10', sede: 'Barranquilla' },
-    { firstName: 'Sofía',     lastName: 'Castro',   birthdayDate: '1996-05-20', sede: 'Bogotá' },
-    { firstName: 'Juan',      lastName: 'Pérez',    birthdayDate: '1985-12-01', sede: 'Medellín' },
+    { firstName: 'Jorge',   lastName: 'Barbosa',  birthdayDate: '1985-03-18', sede: 'Bogotá'   },
+    { firstName: 'Dilson',  lastName: 'Otalvaro', birthdayDate: '1990-03-22', sede: 'Bogotá'   },
+    { firstName: 'Marcela', lastName: 'Arias',    birthdayDate: '1992-04-05', sede: 'Medellín' },
+    { firstName: 'Julián',  lastName: 'Valencia', birthdayDate: '1988-05-14', sede: 'Cali'     },
+    { firstName: 'Juan',    lastName: 'Giraldo',  birthdayDate: '1994-06-30', sede: 'Bogotá'   },
+    { firstName: 'Sara',    lastName: 'Botero',   birthdayDate: '1997-07-11', sede: 'Medellín' },
+    { firstName: 'Viviana', lastName: 'Arias',    birthdayDate: '1993-08-25', sede: 'Bogotá'   },
+    { firstName: 'Carlos',  lastName: 'Muriel',   birthdayDate: '1989-09-03', sede: 'Cali'     },
+    { firstName: 'Yuliana', lastName: 'Guzmán',   birthdayDate: '1995-10-17', sede: 'Bogotá'   },
   ];
 
   constructor(
