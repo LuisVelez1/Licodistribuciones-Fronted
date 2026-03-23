@@ -1,57 +1,58 @@
 <div class="right-column">
+
+  <!-- ── Cumpleaños del Mes ── -->
   <mat-card class="section-card birthday-card">
     <div class="card-header">
-      <mat-card-title>
-       Cumpleaños del Mes
-      </mat-card-title>
-      <div class="action-buttons">
-        <button mat-icon-button color="accent" 
-                (click)="openBirthdayListDialog()" 
-                matTooltip="Ver todos los cumpleaños">
-          <mat-icon>list</mat-icon>
-        </button>
-      </div>
+      <mat-card-title>🎂 Cumpleaños del Mes</mat-card-title>
+      <button mat-icon-button (click)="openBirthdayListDialog()" matTooltip="Ver todos">
+        <mat-icon>list</mat-icon>
+      </button>
     </div>
 
-    <div class="birthday-preview">
-      @if (birthdays.length === 0) {
-        <div class="empty-state">
-          <p>No hay cumpleaños registrados</p>
-        </div>
-      } @else {
-        <div class="upcoming-section">
-          <div class="upcoming-list">
-            @for (b of getLimitedBirthdays(); track b) {
-              <div class="birthday-item">
-                <mat-icon class="birthday-icon">celebration</mat-icon>
-                <div class="birthday-details">
-                  <div class="name">{{ b.name }}</div>
-                  <div class="date">{{ formatDate(b.date) }}</div>
-                </div>
-              </div>
-            }
+    @if (birthdays.length === 0) {
+      <div class="empty-state">
+        <p>No hay cumpleaños este mes</p>
+      </div>
+    } @else {
+      <div class="upcoming-list">
+        @for (b of getLimitedBirthdays(); track b) {
+          <div class="birthday-item">
+            <div class="b-avatar">{{ b.name[0] }}</div>
+            <div class="birthday-details">
+              <div class="name">{{ b.name }}</div>
+              <div class="date">{{ formatDate(b.date) }} · {{ b.sede }}</div>
+            </div>
+            <span class="cake-icon">🎂</span>
+          </div>
+        }
+      </div>
+    }
+  </mat-card>
+
+  <!-- ── Directorio ── -->
+  <mat-card class="section-card directory-card">
+    <div class="card-header">
+      <mat-card-title>👥 Directorio</mat-card-title>
+      <button mat-icon-button (click)="openDirectoryDialog()" matTooltip="Ver directorio completo">
+        <mat-icon>open_in_full</mat-icon>
+      </button>
+    </div>
+
+    <div class="directory-preview">
+      @for (emp of directoryPreview; track emp.id) {
+        <div class="dir-item">
+          <div class="dir-avatar">{{ emp.firstName[0] }}{{ emp.lastName[0] }}</div>
+          <div class="dir-info">
+            <div class="dir-name">{{ emp.firstName }} {{ emp.lastName }}</div>
+            <div class="dir-position">{{ emp.position }}</div>
+            <div class="dir-sede">{{ emp.sede }}</div>
           </div>
         </div>
       }
+      <button class="btn-ver-todos" (click)="openDirectoryDialog()">
+        Ver todos los funcionarios →
+      </button>
     </div>
   </mat-card>
 
-    <mat-card class="section-card directory-card">
-      <div class="card-header">
-        <mat-card-title>Directorio</mat-card-title>
-        <div class="action-buttons">
-          <button
-            mat-icon-button
-            color="accent"
-            (click)="openDirectoryDialog()"
-            matTooltip="Ver directorio de colaboradores"
-          >
-            <mat-icon>people</mat-icon>
-          </button>
-        </div>
-      </div>
-        <div class="directory-preview">
-          <p>Consulta el directorio completo de funcionarios.</p>
-        </div>
-  </mat-card>
 </div>

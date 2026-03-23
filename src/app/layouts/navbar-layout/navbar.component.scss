@@ -1,24 +1,23 @@
-/* ========================
-   NAVBAR
-======================== */
+/* ════════════════════════════════
+   NAVBAR — Lico Distribuciones
+════════════════════════════════ */
+
 .navbar-header {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   width: 100%;
-  height: 80px;
-  background-color: var(--color-secundary);
+  height: 72px;
+  background-color: var(--color-primary);   /* #0A142D */
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 1.5rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(10, 20, 45, 0.35);
   z-index: 1100;
   color: #fff;
-  flex-wrap: wrap;
+  border-bottom: 3px solid var(--color-accent);  /* línea naranja */
 }
 
-/* LOGO */
 .logo-container {
   display: flex;
   align-items: center;
@@ -26,44 +25,42 @@
 }
 
 .logo {
-  height: 50px;
+  height: 46px;
   width: auto;
 }
 
-/* USER INFO */
 .user-container {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.7rem;
   cursor: pointer;
   margin-right: 2.5rem;
   max-width: calc(100% - 280px);
-  padding: 0.3rem 0;
-}
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  transition: background 0.2s;
 
-.user-container mat-icon:first-child {
-  font-size: 24px;
-  flex-shrink: 0;
-}
+  &:hover { background: rgba(255,255,255,0.08); }
 
-.user-container mat-icon:last-child {
-  font-size: 26px;
-  flex-shrink: 0;
+  mat-icon:first-child { font-size: 24px; flex-shrink: 0; color: var(--color-beige); }
+  mat-icon:last-child  { font-size: 20px; flex-shrink: 0; color: var(--color-beige); }
 }
 
 .user-name {
+  font-family: var(--font-body);
   font-weight: 500;
-  max-width: 150px;
+  font-size: 14px;
+  color: var(--color-beige);
+  max-width: 160px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* MENU TOGGLE - Oculto por defecto en desktop */
 .menu-toggle {
   background: transparent;
   border: none;
-  color: white;
+  color: var(--color-beige);
   cursor: pointer;
   font-size: 1.8rem;
   display: none;
@@ -72,186 +69,66 @@
   justify-content: center;
 }
 
-.menu-toggle mat-icon {
-  pointer-events: none;
-}
-
-/* ========================
-   SIDE MENU (base)
-======================== */
+/* ════════════════════════════════
+   SIDE MENU
+════════════════════════════════ */
 .side-menu {
   position: fixed;
-  top: 70px;
+  top: 72px;
   left: 0;
-  bottom: 0;
-  width: 240px;
-  background-color: white;
-  color: var(--color-primary);
+  width: 220px;
+  height: calc(100vh - 72px);
+  background: var(--color-primary);
   display: flex;
   flex-direction: column;
-  padding-top: 1rem;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  z-index: 1050;
+  padding: 1.2rem 0;
+  z-index: 1000;
+  border-right: 1px solid rgba(204, 187, 167, 0.15);
   overflow-y: auto;
-  transition: transform 0.3s ease-in-out;
-  will-change: transform;
-}
 
-/* Desktop: Menu siempre visible */
-@media (min-width: 1025px) {
-  .side-menu {
-    transform: translateX(0) !important;
-  }
-  
-  .menu-toggle {
-    display: none !important;
-  }
-}
+  a {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-beige);
+    text-decoration: none;
+    padding: 12px 24px;
+    transition: background 0.2s, color 0.2s, border-left 0.2s;
+    border-left: 3px solid transparent;
+    letter-spacing: 0.02em;
 
-/* Tablets y móviles: Menu oculto por defecto, se muestra con .open */
-@media (max-width: 1024px) {
-  .side-menu {
-    transform: translateX(-100%) !important;
-  }
-  
-  .side-menu.open {
-    transform: translateX(0) !important;
-  }
-  
-  .menu-toggle {
-    display: flex !important;
+    &:hover {
+      background: rgba(204, 82, 27, 0.12);
+      color: #fff;
+      border-left-color: var(--color-accent);
+    }
+
+    &.active {
+      background: rgba(204, 82, 27, 0.2);
+      color: #fff;
+      border-left-color: var(--color-accent);
+      font-weight: 600;
+    }
   }
 }
 
-.side-menu a {
-  color: var(--color-primary);
-  text-decoration: none;
-  padding: 1rem 1.5rem;
-  font-size: 1rem;
-  transition: background 0.3s ease, color 0.3s ease;
-}
-
-.side-menu a:hover,
-.side-menu a.active {
-  background-color: var(--color-secundary);
-  color: #fff;
-  font-weight: 600;
-}
-
-/* ========================
-   ANGULAR MATERIAL MENU
-======================== */
-::ng-deep .mat-mdc-menu-panel {
-  background-color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  border-radius: 10px !important;
-  overflow: hidden !important;
-}
-
-::ng-deep .mat-mdc-menu-content {
-  background-color: #ffffff !important;
-}
-
-/* ========================
-   MEDIA QUERIES
-======================== */
-
-/* Small tablets / screens <768px */
-@media (max-width: 768px) {
-  .navbar-header {
-    height: auto;
-    min-height: 70px;
-    padding: 0.5rem 1rem;
-  }
-
-  .logo-container {
-    gap: 0.5rem;
-  }
-
-  .user-container {
-    margin-right: 0;
-    gap: 0.5rem;
-    max-width: 200px;
-  }
-
-  .user-name {
-    max-width: 120px;
-    font-size: 0.95rem;
-  }
-}
-
-/* Mobile phones / screens <600px */
-@media (max-width: 600px) {
-  .navbar-header {
-    height: 60px;
-    min-height: 60px;
-    padding: 0 0.8rem;
-    gap: 0.5rem;
-    flex-wrap: nowrap;
-  }
-
-  .logo-container {
-    gap: 0.3rem;
-    flex-shrink: 0;
-  }
-
-  .menu-toggle {
-    font-size: 1.7rem;
-    padding: 0.2rem;
-    margin-right: 0.2rem;
-  }
-
-  .logo {
-    height: 42px;
-  }
-
-  .user-container {
-    gap: 0.3rem;
-    min-width: 0;
-    max-width: 150px;
-    flex-shrink: 1;
-    margin-right: 0;
-  }
-
-  .user-container mat-icon:first-child {
-    font-size: 22px;
-    margin: 10px;
-  }
-
-  .user-container mat-icon:last-child {
-    font-size: 22px;
-    margin: 22
-  }
-
-  .user-name {
-    font-size: 0.85rem;
-  }
-
-  .side-menu {
-    top: 60px;
-  }
-}
-
-/* Overlay para cerrar el menu al hacer click fuera */
 .menu-overlay {
-  display: none;
   position: fixed;
-  top: 70px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1040;
+  inset: 0;
+  background: rgba(10, 20, 45, 0.5);
+  z-index: 999;
 }
 
-@media (max-width: 1024px) {
-  .menu-overlay.show {
-    display: block;
-  }
-}
+/* ════════════════════════════════
+   RESPONSIVE
+════════════════════════════════ */
+@media (max-width: 768px) {
+  .menu-toggle { display: flex; }
 
-@media (max-width: 600px) {
-  .menu-overlay {
-    top: 60px;
+  .side-menu {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    &.open { transform: translateX(0); }
   }
 }

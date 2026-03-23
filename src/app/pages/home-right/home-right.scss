@@ -1,8 +1,4 @@
-:host {
-  display: block;
-  width: 100%;
-  height: auto;
-}
+:host { display: block; width: 100%; }
 
 .right-column {
   display: flex;
@@ -12,181 +8,160 @@
 
 .section-card {
   width: 100%;
-  box-sizing: border-box;
+  border-radius: 14px !important;
+  overflow: hidden;
+  box-shadow: var(--shadow) !important;
+  background: #fff !important;
+  border: 1px solid var(--color-border) !important;
 }
 
-.birthday-card {
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
+/* ── Header de cada card ── */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #f0ebe3;
 
-    mat-card-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-      position: relative;
-
-      mat-icon {
-        color: #ff9800;
-      }
-
-      .count-badge {
-        margin-left: 8px;
-      }
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 4px;
-    }
+  mat-card-title {
+    font-family: var(--font-title);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin: 0;
   }
 
-  .birthday-preview {
-    min-height: 150px;
-  }
-
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 16px;
-    text-align: center;
-
-    mat-icon {
-      font-size: 56px;
-      width: 56px;
-      height: 56px;
-      margin-bottom: 12px;
-      color: #ccc;
-    }
-
-    p {
-      margin: 0 0 16px;
-      color: #999;
-      font-size: 14px;
-    }
-  }
-
-  .upcoming-section {
-    h4 {
-      margin: 0 0 12px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .upcoming-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 16px;
-
-      .birthday-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background-color: #f0f0f0;
-          transform: translateX(4px);
-        }
-
-        .birthday-icon {
-          color: #ff9800;
-          font-size: 24px;
-          width: 24px;
-          height: 24px;
-        }
-
-        .birthday-details {
-          flex: 1;
-
-          .name {
-            font-weight: 500;
-            color: #333;
-            font-size: 14px;
-            margin-bottom: 2px;
-          }
-
-          .date {
-            font-size: 12px;
-            color: #666;
-          }
-        }
-      }
-    }
-
-    .view-all-btn {
-      width: 100%;
-      margin-top: 8px;
-
-      mat-icon {
-        margin-right: 4px;
-      }
-    }
-  }
+  button { color: var(--color-accent) !important; }
 }
 
-::ng-deep .mat-badge-content {
-  font-size: 10px;
-  font-weight: 600;
+/* ── Cumpleaños ── */
+.upcoming-list {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.directory-card {
-  margin-top: 1rem;
-  .directory-preview {
-    font-size: 0.95rem;
-    color: var(--color-text-secondary);
-  }
-}
-
-/* ── Mejoras visuales cumpleaños ── */
 .birthday-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 8px 10px;
   border-radius: 10px;
   transition: background 0.2s;
-  &:hover { background: #fff8e1; }
 
-  .birthday-icon {
-    color: #ff9800;
-    font-size: 22px;
+  &:hover { background: #fdf4ef; }
+
+  .b-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-beige);
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
   .birthday-details {
     flex: 1;
+
     .name {
+      font-size: 13px;
       font-weight: 600;
-      font-size: 14px;
-      color: #1a1a2e;
+      color: var(--color-primary);
     }
+
     .date {
-      font-size: 12px;
-      color: #888;
-      margin-top: 2px;
+      font-size: 11px;
+      color: var(--color-text-soft);
+      margin-top: 1px;
+    }
+  }
+
+  .cake-icon { font-size: 16px; }
+}
+
+.empty-state {
+  padding: 20px 16px;
+  text-align: center;
+  color: var(--color-text-soft);
+  font-size: 13px;
+}
+
+/* ── Directorio preview ── */
+.directory-preview {
+  padding: 10px 12px;
+}
+
+.dir-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f5f0ea;
+
+  &:last-of-type { border-bottom: none; }
+  &:hover { background: #fdf4ef; }
+
+  .dir-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent), var(--color-brown));
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .dir-info {
+    flex: 1;
+
+    .dir-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    .dir-position {
+      font-size: 11px;
+      color: var(--color-accent);
+      font-weight: 500;
+      margin-top: 1px;
+    }
+
+    .dir-sede {
+      font-size: 11px;
+      color: var(--color-text-soft);
     }
   }
 }
 
-/* ── Mejoras visuales directorio ── */
-.directory-card {
-  .directory-preview {
-    p {
-      font-size: 13px;
-      color: #888;
-      margin: 0;
-    }
+.btn-ver-todos {
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  background: transparent;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 8px;
+  color: var(--color-accent);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: var(--color-accent);
+    color: #fff;
   }
 }
