@@ -1,7 +1,94 @@
 <div class="home-container">
   <main class="home-main">
     <section class="news-feed">
-      <h2 class="news-title">Noticias Internas</h2>
+      <div class="news-feed-header">
+        <h2 class="news-title">Noticias Internas</h2>
+        <button class="btn-new-post" (click)="toggleUploadForm()">
+          <span>➕</span> Nueva publicación
+        </button>
+      </div>
+
+      <!-- Formulario de carga de noticias/videos -->
+      @if (showUploadForm) {
+        <div class="upload-form-card">
+          <h3>📰 Nueva Noticia o Video</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Título *</label>
+              <input type="text" [(ngModel)]="newPost.title" placeholder="Título de la noticia" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Categoría *</label>
+              <select [(ngModel)]="newPost.category" class="form-input">
+                <option value="">Seleccionar categoría</option>
+                <option value="Comunicado">Comunicado</option>
+                <option value="Operaciones">Operaciones</option>
+                <option value="RRHH">RRHH</option>
+                <option value="Ventas">Ventas</option>
+                <option value="Sistemas">Sistemas</option>
+                <option value="General">General</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Descripción *</label>
+            <textarea [(ngModel)]="newPost.description" placeholder="Describe el contenido de la noticia..." class="form-textarea" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de contenido</label>
+            <div class="content-type-tabs">
+              <button class="tab-btn" [class.active]="newPost.contentType === 'video'" (click)="newPost.contentType = 'video'">🎬 Video</button>
+              <button class="tab-btn" [class.active]="newPost.contentType === 'image'" (click)="newPost.contentType = 'image'">🖼️ Imagen</button>
+              <button class="tab-btn" [class.active]="newPost.contentType === 'none'" (click)="newPost.contentType = 'none'">📝 Solo texto</button>
+            </div>
+          </div>
+
+          @if (newPost.contentType === 'video') {
+            <div class="form-group">
+              <label>Video</label>
+              <div class="file-upload-area" (click)="videoInput.click()">
+                <input #videoInput type="file" accept="video/*" (change)="onVideoSelected($event)" style="display:none" />
+                @if (newPost.videoPreview) {
+                  <video [src]="newPost.videoPreview" controls class="preview-video"></video>
+                } @else {
+                  <div class="upload-placeholder">
+                    <span class="upload-icon">📹</span>
+                    <p>Haz clic para seleccionar un video</p>
+                    <small>MP4, AVI, MOV · Máx. 500MB</small>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (newPost.contentType === 'image') {
+            <div class="form-group">
+              <label>Imagen</label>
+              <div class="file-upload-area" (click)="imageInput.click()">
+                <input #imageInput type="file" accept="image/*" (change)="onImageSelected($event)" style="display:none" />
+                @if (newPost.imagePreview) {
+                  <img [src]="newPost.imagePreview" class="preview-image" alt="preview" />
+                } @else {
+                  <div class="upload-placeholder">
+                    <span class="upload-icon">🖼️</span>
+                    <p>Haz clic para subir una imagen</p>
+                    <small>JPG, PNG, GIF · Máx. 10MB</small>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="form-actions">
+            <button class="btn-cancel" (click)="toggleUploadForm()">Cancelar</button>
+            <button class="btn-publish" (click)="publishPost()" [disabled]="!newPost.title || !newPost.category || !newPost.description">
+              Publicar noticia
+            </button>
+          </div>
+        </div>
+      }
 
       @for (post of newsPosts; track post.title; let i = $index) {
         <article class="news-card">
@@ -12,14 +99,17 @@
 
           <h3 class="news-post-title">{{ post.title }}</h3>
 
-          <div class="video-wrapper">
-            <video
-              [src]="post.videoSrc"
-              controls
-              preload="metadata"
-              class="news-video"
-            ></video>
-          </div>
+          @if (post.videoSrc) {
+            <div class="video-wrapper">
+              <video [src]="post.videoSrc" controls preload="metadata" class="news-video"></video>
+            </div>
+          }
+
+          @if (post.imageSrc) {
+            <div class="image-wrapper">
+              <img [src]="post.imageSrc" class="news-image" [alt]="post.title" />
+            </div>
+          }
 
           <p class="news-description">{{ post.description }}</p>
 

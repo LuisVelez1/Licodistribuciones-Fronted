@@ -1,51 +1,54 @@
-<div class="requeriments-list">
+<div class="requeriments-page">
+  <div class="page-header">
+    <h2>📋 Mis Requerimientos</h2>
+    <span class="count-badge">{{ requeriments.length }} solicitudes</span>
+  </div>
 
-  @for (req of requeriments; track req.id) {
-
-    <div class="requeriment-card">
-
-      <div class="card-header">
-
-        <div class="title-block">
-          <h3>{{ req.area }} · {{ req.type }}</h3>
-
-          <span class="priority {{ req.priority }}">
-            {{ req.priority }}
-          </span>
-        </div>
-
-        <span class="status {{ req.status }}">
-          {{ req.status.replace('_', ' ') }}
-        </span>
-
-      </div>
-
-      <p class="description">
-        {{ req.description }}
-      </p>
-
-      @if (req.attachments && req.attachments.length > 0) {
-        <div class="attachments">
-          <span>📎 Adjuntos:</span>
-
-          @for (file of req.attachments; track file) {
-            <small>{{ file }}</small>
-          }
-        </div>
-      }
-
-      <div class="card-footer">
-
-        <div class="creator">
-          👤 {{ req.createdBy.name }}
-        </div>
-
-        <div class="meta">
-          <span>#{{ req.id }}</span>
-          <span>{{ req.createdAt | date:'dd/MM/yyyy' }}</span>
-        </div>
-      </div>
+  @if (requeriments.length === 0) {
+    <div class="empty-state">
+      <span>📭</span>
+      <p>No tienes requerimientos registrados aún.</p>
+      <small>Ve a "Crear requerimiento" para enviar una solicitud.</small>
     </div>
   }
 
+  <div class="requeriments-list">
+    @for (req of requeriments; track req.id) {
+      <div class="requeriment-card">
+        <div class="card-header">
+          <div class="title-block">
+            <h3>{{ req.area }} · {{ req.type }}</h3>
+            <span class="priority {{ req.priority }}">
+              {{ getPriorityIcon(req.priority) }} {{ req.priority }}
+            </span>
+          </div>
+          <span class="status {{ req.status }}">
+            {{ getStatusLabel(req.status) }}
+          </span>
+        </div>
+
+        <p class="description">{{ req.description }}</p>
+
+        @if (req.attachments && req.attachments.length > 0) {
+          <div class="attachments">
+            <span>📎 Adjuntos:</span>
+            @for (file of req.attachments; track file) {
+              <small class="attachment-chip">{{ file }}</small>
+            }
+          </div>
+        }
+
+        <div class="card-footer">
+          <div class="creator">
+            <span class="creator-avatar">{{ req.createdBy.name[0] }}</span>
+            <span class="creator-name">{{ req.createdBy.name }}</span>
+          </div>
+          <div class="meta">
+            <span class="req-id">#{{ req.id }}</span>
+            <span class="req-date">{{ req.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
 </div>

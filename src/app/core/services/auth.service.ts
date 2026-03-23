@@ -10,18 +10,18 @@ import { PasswordCredentials } from '../../pages/admin/change-password/change-pa
 export class AuthService {
   private apiUrl = `${API_ENDPOINTS.auth}`;
 
-  // MOCK - usuarios reales con contraseña temporal 123456
+  // MOCK - usuarios reales. Usuario: primernombre.primerapellido | Contraseña: número de cédula
   private mockUsers = [
-    { username: 'SUPER.USUARIO',    email: 'super.usuario@licodist.com',    password: '123456', role: 'SUPER_ADMIN' },
-    { username: 'JORGE.BARBOSA',    email: 'jorge.barbosa@licodist.com',    password: '123456', role: 'ADMIN'       },
-    { username: 'DILSON.OTALVARO',  email: 'dilson.otalvaro@licodist.com',  password: '123456', role: 'USER'        },
-    { username: 'MARCELA.ARIAS',    email: 'marcela.arias@licodist.com',    password: '123456', role: 'USER'        },
-    { username: 'JULIAN.VALENCIA',  email: 'julian.valencia@licodist.com',  password: '123456', role: 'USER'        },
-    { username: 'JUAN.GIRALDO',     email: 'juan.giraldo@licodist.com',     password: '123456', role: 'USER'        },
-    { username: 'SARA.BOTERO',      email: 'sara.botero@licodist.com',      password: '123456', role: 'USER'        },
-    { username: 'VIVIANA.ARIAS',    email: 'viviana.arias@licodist.com',    password: '123456', role: 'USER'        },
-    { username: 'CARLOS.MURIEL',    email: 'carlos.muriel@licodist.com',    password: '123456', role: 'USER'        },
-    { username: 'YULIANA.GUZMAN',   email: 'yuliana.guzman@licodist.com',   password: '123456', role: 'USER'        },
+    { username: 'super.usuario',   email: 'super.usuario@licodist.com',   password: '1000000001', role: 'SUPER_ADMIN', cedula: '1000000001' },
+    { username: 'jorge.barbosa',   email: 'jorge.barbosa@licodist.com',   password: '1000000002', role: 'ADMIN',       cedula: '1000000002' },
+    { username: 'dilson.otalvaro', email: 'dilson.otalvaro@licodist.com', password: '1000000003', role: 'USER',        cedula: '1000000003' },
+    { username: 'marcela.arias',   email: 'marcela.arias@licodist.com',   password: '1000000004', role: 'USER',        cedula: '1000000004' },
+    { username: 'julian.valencia', email: 'julian.valencia@licodist.com', password: '1000000005', role: 'USER',        cedula: '1000000005' },
+    { username: 'juan.giraldo',    email: 'juan.giraldo@licodist.com',    password: '1000000006', role: 'USER',        cedula: '1000000006' },
+    { username: 'sara.botero',     email: 'sara.botero@licodist.com',     password: '1000000007', role: 'USER',        cedula: '1000000007' },
+    { username: 'viviana.arias',   email: 'viviana.arias@licodist.com',   password: '1000000008', role: 'USER',        cedula: '1000000008' },
+    { username: 'carlos.muriel',   email: 'carlos.muriel@licodist.com',   password: '1000000009', role: 'USER',        cedula: '1000000009' },
+    { username: 'yuliana.guzman',  email: 'yuliana.guzman@licodist.com',  password: '1000000010', role: 'USER',        cedula: '1000000010' },
   ];
 
   constructor(
@@ -37,7 +37,7 @@ export class AuthService {
 
     const found = this.mockUsers.find(
       u =>
-        (u.email === credentials.email || u.username === credentials.email) &&
+        (u.email === credentials.email || u.username === credentials.email.toLowerCase()) &&
         u.password === credentials.password
     );
 

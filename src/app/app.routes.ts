@@ -7,28 +7,28 @@ export const routes: Routes = [
 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
-
   {
     path: 'auth',
     loadChildren: () => import('./layouts/auth-layout/auth.routes')
       .then(m => m.AUTH_ROUTES),
       canActivate: [reverseAuthGuard]
   },
-  
+
   {
     path: '',
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: 'home', loadComponent: () => import('./pages/home/home').then(m => m.HomeComponent)},
-      { path: 'profile', loadComponent: () => import('./pages/profile/profile').then(m => m.ProfilePageComponent)},
-      {path: 'academy', loadChildren: () => import('./pages/academy/routes/academy.routes').then(m => m.ACADEMY_ROUTES)},
-      { path: 'documents', loadComponent: () => import('./pages/documents/documents').then(m => m.DocumentsComponent)},
-      { path: 'requeriments', loadChildren: () => import('./pages/requeriments/routes/requirements.routes').then(m => m.REQUIREMENTS_ROUTES)},
-      {path: 'admin', loadChildren: () => import('./pages/admin/routes/admin.routes').then(m => m.ADMIN_ROUTES)}
+      { path: 'home',        loadComponent: () => import('./pages/home/home').then(m => m.HomeComponent) },
+      { path: 'profile',     loadComponent: () => import('./pages/profile/profile').then(m => m.ProfilePageComponent) },
+      { path: 'academy',     loadChildren: () => import('./pages/academy/routes/academy.routes').then(m => m.ACADEMY_ROUTES) },
+      { path: 'documents',   loadComponent: () => import('./pages/documents/documents').then(m => m.DocumentsComponent) },
+      { path: 'requeriments', loadChildren: () => import('./pages/requeriments/routes/requirements.routes').then(m => m.REQUIREMENTS_ROUTES) },
+      { path: 'admin',       loadChildren: () => import('./pages/admin/routes/admin.routes').then(m => m.ADMIN_ROUTES) },
+      { path: 'fixed-assets', loadComponent: () => import('./pages/fixed-assets/fixed-assets').then(m => m.FixedAssetsComponent) },
+      { path: 'meeting-room', loadComponent: () => import('./pages/meeting-room/meeting-room').then(m => m.MeetingRoomComponent) },
     ]
   },
 
   { path: '**', redirectTo: 'auth/login' }
 ];
-

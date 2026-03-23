@@ -1,0 +1,185 @@
+<div class="assets-container">
+  <div class="assets-header">
+    <div>
+      <h2>🏷️ Activos Fijos</h2>
+      <p class="subtitle">Gestión del inventario de activos de la empresa</p>
+    </div>
+    <button class="btn-add" (click)="toggleForm()">➕ Nuevo activo</button>
+  </div>
+
+  <!-- Stats rápidas -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-number">{{ assets.length }}</span>
+      <span class="stat-label">Total activos</span>
+    </div>
+    <div class="stat-card activos">
+      <span class="stat-number">{{ assets | countByStatus:'activo' }}</span>
+      <span class="stat-label">Activos</span>
+    </div>
+    <div class="stat-card mantenimiento">
+      <span class="stat-number">{{ assets | countByStatus:'en_mantenimiento' }}</span>
+      <span class="stat-label">En mantenimiento</span>
+    </div>
+    <div class="stat-card baja">
+      <span class="stat-number">{{ assets | countByStatus:'dado_de_baja' }}</span>
+      <span class="stat-label">Dados de baja</span>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  @if (showForm) {
+    <div class="form-card">
+      <h3>📦 Registrar nuevo activo</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre del activo *</label>
+          <input type="text" [(ngModel)]="newAsset.name" placeholder="Ej: Computador Portátil HP" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Categoría *</label>
+          <select [(ngModel)]="newAsset.category" class="form-input">
+            <option value="">Seleccionar...</option>
+            @for (cat of categories; track cat) {
+              <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Marca</label>
+          <input type="text" [(ngModel)]="newAsset.brand" placeholder="Ej: Dell, HP, Samsung" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Modelo</label>
+          <input type="text" [(ngModel)]="newAsset.model" placeholder="Ej: Latitude 5420" class="form-input" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Serial / Placa</label>
+          <input type="text" [(ngModel)]="newAsset.serial" placeholder="Número de serie o placa" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Área responsable *</label>
+          <select [(ngModel)]="newAsset.area" class="form-input">
+            <option value="">Seleccionar...</option>
+            @for (area of areas; track area) {
+              <option [value]="area">{{ area }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ubicación *</label>
+          <input type="text" [(ngModel)]="newAsset.location" placeholder="Ej: Oficina Principal - Bogotá" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Asignado a</label>
+          <input type="text" [(ngModel)]="newAsset.assignedTo" placeholder="Nombre del responsable" class="form-input" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha de adquisición</label>
+          <input type="date" [(ngModel)]="newAsset.acquisitionDate" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Valor de adquisición (COP)</label>
+          <input type="text" [(ngModel)]="newAsset.acquisitionValueStr" placeholder="Ej: 4500000" class="form-input" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Estado</label>
+        <select [(ngModel)]="newAsset.status" class="form-input">
+          <option value="activo">Activo</option>
+          <option value="disponible">Disponible</option>
+          <option value="en_mantenimiento">En mantenimiento</option>
+          <option value="dado_de_baja">Dado de baja</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="toggleForm()">Cancelar</button>
+        <button class="btn-save" (click)="saveAsset()" [disabled]="!newAsset.name || !newAsset.category || !newAsset.area || !newAsset.location">
+          Guardar activo
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Filtros -->
+  <div class="filters-row">
+    <input type="text" [(ngModel)]="searchText" (ngModelChange)="filterAssets()" placeholder="🔍 Buscar por nombre, código o responsable..." class="search-input" />
+    <select [(ngModel)]="filterCategory" (ngModelChange)="filterAssets()" class="filter-select">
+      <option value="">Todas las categorías</option>
+      @for (cat of categories; track cat) {
+        <option [value]="cat">{{ cat }}</option>
+      }
+    </select>
+    <select [(ngModel)]="filterStatus" (ngModelChange)="filterAssets()" class="filter-select">
+      <option value="">Todos los estados</option>
+      <option value="activo">Activo</option>
+      <option value="disponible">Disponible</option>
+      <option value="en_mantenimiento">En mantenimiento</option>
+      <option value="dado_de_baja">Dado de baja</option>
+    </select>
+  </div>
+
+  <!-- Tabla de activos -->
+  <div class="assets-table-wrapper">
+    @if (filteredAssets.length === 0) {
+      <div class="empty-state">
+        <span>📦</span>
+        <p>No se encontraron activos</p>
+      </div>
+    } @else {
+      <table class="assets-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Activo</th>
+            <th>Categoría</th>
+            <th>Área</th>
+            <th>Asignado a</th>
+            <th>Ubicación</th>
+            <th>Valor</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (asset of filteredAssets; track asset.id) {
+            <tr>
+              <td><span class="asset-code">{{ asset.code }}</span></td>
+              <td>
+                <div class="asset-name-cell">
+                  <span class="asset-icon">{{ getCategoryIcon(asset.category) }}</span>
+                  <div>
+                    <div class="asset-name">{{ asset.name }}</div>
+                    @if (asset.brand) { <small class="asset-brand">{{ asset.brand }} {{ asset.model }}</small> }
+                  </div>
+                </div>
+              </td>
+              <td>{{ asset.category }}</td>
+              <td>{{ asset.area }}</td>
+              <td>{{ asset.assignedTo ?? '—' }}</td>
+              <td>{{ asset.location }}</td>
+              <td>{{ formatCurrency(asset.acquisitionValue) }}</td>
+              <td>
+                <span class="status-badge {{ asset.status }}">{{ getStatusLabel(asset.status) }}</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

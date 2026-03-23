@@ -1,0 +1,147 @@
+<div class="meeting-container">
+  <div class="meeting-header">
+    <div>
+      <h2>🗓️ Reserva de Sala de Juntas</h2>
+      <p class="subtitle">Consulta disponibilidad y reserva el espacio que necesitas</p>
+    </div>
+    <button class="btn-reserve" (click)="toggleForm()">➕ Reservar sala</button>
+  </div>
+
+  @if (successMessage) {
+    <div class="success-banner">{{ successMessage }}</div>
+  }
+
+  <!-- Formulario de reserva -->
+  @if (showForm) {
+    <div class="form-card">
+      <h3>📅 Nueva reserva</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Sala *</label>
+          <select [(ngModel)]="newReservation.room" class="form-input">
+            @for (room of rooms; track room) {
+              <option [value]="room">{{ room }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fecha *</label>
+          <input type="date" [(ngModel)]="newReservation.date" [min]="minDate" class="form-input" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hora de inicio *</label>
+          <select [(ngModel)]="newReservation.startTime" class="form-input">
+            <option value="">Seleccionar hora</option>
+            @for (slot of timeSlots; track slot) {
+              <option [value]="slot">{{ slot }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Hora de fin *</label>
+          <select [(ngModel)]="newReservation.endTime" class="form-input">
+            <option value="">Seleccionar hora</option>
+            @for (slot of timeSlots; track slot) {
+              <option [value]="slot">{{ slot }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Propósito de la reunión *</label>
+          <input type="text" [(ngModel)]="newReservation.purpose" placeholder="Ej: Reunión de equipo, Capacitación..." class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>N° de asistentes</label>
+          <input type="number" [(ngModel)]="newReservation.attendees" min="1" max="50" class="form-input" />
+        </div>
+      </div>
+
+      @if (conflictError) {
+        <div class="error-msg">{{ conflictError }}</div>
+      }
+
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="toggleForm()">Cancelar</button>
+        <button class="btn-book" (click)="bookRoom()"
+          [disabled]="!newReservation.date || !newReservation.startTime || !newReservation.endTime || !newReservation.purpose">
+          Confirmar reserva
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Calendario de disponibilidad por día -->
+  <div class="calendar-section">
+    <div class="calendar-nav">
+      <label class="date-label">Ver disponibilidad del día:</label>
+      <input type="date" [(ngModel)]="selectedDate" [min]="minDate" class="date-picker" />
+      <span class="date-display">{{ formatDate(selectedDate) }}</span>
+    </div>
+
+    <div class="rooms-grid">
+      @for (room of rooms; track room) {
+        <div class="room-column">
+          <div class="room-header">
+            <span class="room-icon">🏛️</span>
+            <span class="room-name">{{ room }}</span>
+          </div>
+          <div class="time-slots">
+            @for (slot of timeSlots; track slot) {
+              @let res = getSlotReservation(slot, room);
+              @let booked = isSlotBooked(slot, room);
+              <div class="time-slot" [class.booked]="booked" [class.start]="!!res">
+                <span class="slot-time">{{ slot }}</span>
+                @if (res) {
+                  <div class="slot-info">
+                    <div class="slot-purpose">{{ res.purpose }}</div>
+                    <div class="slot-who">{{ res.bookedBy }} · {{ res.attendees }} pers.</div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Lista de próximas reservas -->
+  <div class="upcoming-section">
+    <h3>📋 Próximas reservas</h3>
+    @if (allUpcoming.length === 0) {
+      <div class="empty-state">
+        <span>📭</span>
+        <p>No hay reservas próximas</p>
+      </div>
+    }
+    <div class="reservations-list">
+      @for (res of allUpcoming; track res.id) {
+        <div class="reservation-card">
+          <div class="res-date">
+            <div class="res-day">{{ formatDate(res.date) }}</div>
+            <div class="res-time">{{ res.startTime }} – {{ res.endTime }}</div>
+          </div>
+          <div class="res-info">
+            <div class="res-room">🏛️ {{ res.room }}</div>
+            <div class="res-purpose">{{ res.purpose }}</div>
+            <div class="res-meta">
+              <span>👤 {{ res.bookedBy }}</span>
+              <span>👥 {{ res.attendees }} asistentes</span>
+            </div>
+          </div>
+          <div class="res-actions">
+            <span class="status-badge {{ res.status }}">{{ res.status }}</span>
+            <button class="btn-cancel-res" (click)="cancelReservation(res.id)" title="Cancelar reserva">✖</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

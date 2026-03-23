@@ -9,20 +9,23 @@
   <mat-dialog-content>
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Buscar por nombre o cargo</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
       <input
         matInput
         [(ngModel)]="searchText"
         (ngModelChange)="filterEmployees()"
-        placeholder="Coordinador o Iván"
+        placeholder="Ej: Marcela o Ventas"
       />
-        @switch (searchText) {
-  @case (searchText) {
-    <button matSuffix mat-icon-button (click)="clearSearch()">
-      <mat-icon>close</mat-icon>
-    </button>
-     }
-    }
+      @if (searchText) {
+        <button matSuffix mat-icon-button (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
+
+    <div class="results-summary">
+      <span>{{ filteredEmployees.length }} funcionario{{ filteredEmployees.length !== 1 ? 's' : '' }}</span>
+    </div>
 
     @if (filteredEmployees.length === 0) {
       <div class="empty-state">
@@ -30,17 +33,49 @@
         <p>No se encontraron coincidencias</p>
       </div>
     } @else {
-      <mat-list>
-        @for (emp of filteredEmployees; track emp) {
-          <mat-list-item>
-            <div matLine><strong>{{ emp.fullName }}</strong></div>
-            <div matLine class="secondary">{{ emp.position }}</div>
-            <div matLine class="secondary">{{ emp.sede }}</div>
-            <div matLine class="secondary">{{ emp.email }}</div>
-        </mat-list-item>
+      <div class="employee-grid">
+        @for (emp of filteredEmployees; track emp.id) {
+          <div class="employee-card">
+            <div class="employee-avatar">
+              {{ emp.firstName[0] }}{{ emp.lastName[0] }}
+            </div>
+            <div class="employee-info">
+              <div class="employee-name">{{ emp.fullName }}</div>
+              @if (emp.position) {
+                <div class="employee-position">
+                  <mat-icon class="info-icon">work</mat-icon>
+                  {{ emp.position }}
+                </div>
+              }
+              @if (emp.area) {
+                <div class="employee-detail">
+                  <mat-icon class="info-icon">domain</mat-icon>
+                  {{ emp.area }}
+                </div>
+              }
+              @if (emp.sede) {
+                <div class="employee-detail">
+                  <mat-icon class="info-icon">location_on</mat-icon>
+                  {{ emp.sede }}
+                </div>
+              }
+              @if (emp.email) {
+                <div class="employee-detail">
+                  <mat-icon class="info-icon">email</mat-icon>
+                  {{ emp.email }}
+                </div>
+              }
+              @if (emp.phone) {
+                <div class="employee-detail">
+                  <mat-icon class="info-icon">phone</mat-icon>
+                  {{ emp.phone }}
+                </div>
+              }
+            </div>
+          </div>
           <mat-divider></mat-divider>
         }
-      </mat-list>
+      </div>
     }
   </mat-dialog-content>
 </div>

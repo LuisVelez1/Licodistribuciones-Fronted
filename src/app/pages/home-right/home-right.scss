@@ -149,3 +149,44 @@
     color: var(--color-text-secondary);
   }
 }
+
+/* ── Mejoras visuales cumpleaños ── */
+.birthday-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: background 0.2s;
+  &:hover { background: #fff8e1; }
+
+  .birthday-icon {
+    color: #ff9800;
+    font-size: 22px;
+  }
+
+  .birthday-details {
+    flex: 1;
+    .name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1a1a2e;
+    }
+    .date {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+  }
+}
+
+/* ── Mejoras visuales directorio ── */
+.directory-card {
+  .directory-preview {
+    p {
+      font-size: 13px;
+      color: #888;
+      margin: 0;
+    }
+  }
+}

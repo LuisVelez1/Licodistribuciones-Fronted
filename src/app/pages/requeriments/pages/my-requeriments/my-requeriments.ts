@@ -1,8 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-type RequerimentStatus = 'pendiente' | 'en_proceso' | 'completado' | 'cancelado';
-type Priority = 'BAJA' | 'MEDIA' | 'ALTA' | 'CRITICA';
+import { RequirementsStoreService, Requirement } from '../../../../core/services/requirements-store.service';
 
 @Component({
   standalone: true,
@@ -11,24 +9,31 @@ type Priority = 'BAJA' | 'MEDIA' | 'ALTA' | 'CRITICA';
   templateUrl: './my-requeriments.html',
   styleUrl: './my-requeriments.scss'
 })
-export class MyRequerimentsComponent {
- 
+export class MyRequerimentsComponent implements OnInit {
+  requeriments: Requirement[] = [];
 
-  requeriments = [
-    {
-      id: 1,
-      area: 'TI',
-      type: 'Soporte técnico',
-      description: 'No puedo acceder al sistema',
-      status: 'pendiente' as RequerimentStatus,
-      priority: 'ALTA' as Priority,
-      attachments: ['error.png', 'log.txt'],
-      createdBy: {
-        name: 'Carlos Pérez',
-        email: 'carlos@empresa.com'
-      },
-      createdAt: '2026-02-01'
-    }
-  ];
+  constructor(private store: RequirementsStoreService) {}
+
+  ngOnInit() {
+    this.store.requirements$.subscribe(reqs => {
+      this.requeriments = reqs;
+    });
+  }
+
+  getStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      pendiente: 'Pendiente',
+      en_proceso: 'En proceso',
+      completado: 'Completado',
+      cancelado: 'Cancelado'
+    };
+    return labels[status] ?? status;
+  }
+
+  getPriorityIcon(priority: string): string {
+    const icons: Record<string, string> = {
+      BAJA: '🟢', MEDIA: '🟡', ALTA: '🟠', CRITICA: '🔴'
+    };
+    return icons[priority] ?? '⚪';
+  }
 }
-

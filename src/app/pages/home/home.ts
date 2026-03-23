@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HomeRightComponent } from "../home-right/home-right";
+import { CommonModule } from '@angular/common';
 
 interface Comment {
   author: string;
@@ -12,17 +13,29 @@ interface NewsPost {
   title: string;
   category: string;
   date: string;
-  videoSrc: string;
+  videoSrc?: string;
+  imageSrc?: string;
   description: string;
   comments: Comment[];
   showComments: boolean;
   newComment: string;
 }
 
+interface NewPostForm {
+  title: string;
+  category: string;
+  description: string;
+  contentType: 'video' | 'image' | 'none';
+  videoPreview: string;
+  imagePreview: string;
+  videoFile: File | null;
+  imageFile: File | null;
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, HomeRightComponent],
+  imports: [FormsModule, HomeRightComponent, CommonModule],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
@@ -30,6 +43,9 @@ export class HomeComponent {
   userName = 'Jorge Barbosa';
   menuOpen = false;
   profileOpen = signal(false);
+  showUploadForm = false;
+
+  newPost: NewPostForm = this.emptyForm();
 
   newsPosts: NewsPost[] = [
     {
@@ -56,6 +72,73 @@ export class HomeComponent {
       newComment: ''
     }
   ];
+
+  private emptyForm(): NewPostForm {
+    return {
+      title: '',
+      category: '',
+      description: '',
+      contentType: 'none',
+      videoPreview: '',
+      imagePreview: '',
+      videoFile: null,
+      imageFile: null
+    };
+  }
+
+  toggleUploadForm() {
+    this.showUploadForm = !this.showUploadForm;
+    if (!this.showUploadForm) {
+      this.newPost = this.emptyForm();
+    }
+  }
+
+  onVideoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.newPost.videoFile = file;
+      this.newPost.videoPreview = URL.createObjectURL(file);
+    }
+  }
+
+  onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.newPost.imageFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.newPost.imagePreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  publishPost() {
+    if (!this.newPost.title || !this.newPost.category || !this.newPost.description) return;
+
+    const post: NewsPost = {
+      title: this.newPost.title,
+      category: this.newPost.category,
+      description: this.newPost.description,
+      date: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }),
+      comments: [],
+      showComments: false,
+      newComment: ''
+    };
+
+    if (this.newPost.contentType === 'video' && this.newPost.videoPreview) {
+      post.videoSrc = this.newPost.videoPreview;
+    }
+    if (this.newPost.contentType === 'image' && this.newPost.imagePreview) {
+      post.imageSrc = this.newPost.imagePreview;
+    }
+
+    this.newsPosts.unshift(post);
+    this.newPost = this.emptyForm();
+    this.showUploadForm = false;
+  }
 
   toggleComments(index: number) {
     this.newsPosts[index].showComments = !this.newsPosts[index].showComments;

@@ -1,115 +1,98 @@
-.requeriments-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 520px));
-  gap: 1.75rem;
-  justify-content: center;
+.requeriments-page {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  h2 { margin: 0; font-size: 22px; color: #1a1a2e; }
+
+  .count-badge {
+    background: #e3f2fd; color: #1976d2;
+    padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;
+  }
+}
+
+.empty-state {
+  text-align: center; padding: 60px 20px; color: #aaa;
+  span { font-size: 48px; }
+  p { font-size: 16px; margin: 12px 0 4px; color: #666; }
+  small { font-size: 13px; }
+}
+
+.requeriments-list { display: flex; flex-direction: column; gap: 16px; }
 
 .requeriment-card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 1.4rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
+  background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
+  padding: 20px; transition: box-shadow 0.2s, border-color 0.2s;
+  &:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-color: #1976d2; }
 }
 
 .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 12px;
 
-.title-block {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  .title-block {
+    display: flex; flex-direction: column; gap: 6px;
+    h3 { margin: 0; font-size: 16px; color: #1a1a2e; }
+  }
 }
 
 .priority {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.2rem 0.6rem;
-  border-radius: 6px;
-  width: fit-content;
-}
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
 
-.priority.BAJA {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-.priority.MEDIA {
-  background: #fffbeb;
-  color: #d97706;
-}
-
-.priority.ALTA {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.priority.CRITICA {
-  background: #7f1d1d;
-  color: #fff;
+  &.BAJA    { background: #e8f5e9; color: #2e7d32; }
+  &.MEDIA   { background: #fffde7; color: #f57f17; }
+  &.ALTA    { background: #fff3e0; color: #e65100; }
+  &.CRITICA { background: #ffebee; color: #c62828; }
 }
 
 .status {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.3rem 0.7rem;
-  border-radius: 20px;
-  text-transform: capitalize;
+  padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  flex-shrink: 0; margin-top: 4px;
+
+  &.pendiente   { background: #fff8e1; color: #f57c00; }
+  &.en_proceso  { background: #e3f2fd; color: #1565c0; }
+  &.completado  { background: #e8f5e9; color: #2e7d32; }
+  &.cancelado   { background: #fce4ec; color: #c62828; }
 }
 
-.status.pendiente {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status.en_proceso {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.status.aprobado {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status.rechazado {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.description {
-  font-size: 0.9rem;
-  color: #374151;
-}
+.description { color: #555; font-size: 14px; margin: 0 0 12px; line-height: 1.5; }
 
 .attachments {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: #6b7280;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 12px; font-size: 13px; color: #666;
+
+  .attachment-chip {
+    background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px;
+    padding: 2px 8px; font-size: 12px;
+  }
 }
 
 .card-footer {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: #6b7280;
-}
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid #f0f0f0; padding-top: 12px; margin-top: 4px;
 
-.creator {
-  font-weight: 600;
-}
+  .creator {
+    display: flex; align-items: center; gap: 8px;
 
-.meta {
-  display: flex;
-  gap: 0.6rem;
-}
+    .creator-avatar {
+      width: 28px; height: 28px; background: #1976d2; color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600;
+    }
+    .creator-name { font-size: 13px; color: #555; font-weight: 500; }
+  }
 
+  .meta {
+    display: flex; gap: 12px; font-size: 12px; color: #999;
+
+    .req-id { font-weight: 600; color: #1976d2; }
+  }
+}

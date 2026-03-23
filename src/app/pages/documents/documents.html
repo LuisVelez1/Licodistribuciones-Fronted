@@ -1,1 +1,133 @@
-<h2> Documentos</h2>
+<div class="documents-container">
+  <div class="documents-header">
+    <h2>📁 Documentos Corporativos</h2>
+    <button class="btn-upload" (click)="toggleUploadForm()">
+      ➕ Cargar documento
+    </button>
+  </div>
+
+  <!-- Formulario de carga -->
+  @if (showUploadForm) {
+    <div class="upload-form-card">
+      <h3>📄 Cargar nuevo documento</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre del documento *</label>
+          <input type="text" [(ngModel)]="newDoc.name" placeholder="Ej: Manual de procesos 2026" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Categoría *</label>
+          <select [(ngModel)]="newDoc.category" class="form-input">
+            <option value="">Seleccionar categoría</option>
+            <option value="Políticas">Políticas</option>
+            <option value="Manuales">Manuales</option>
+            <option value="Formatos">Formatos</option>
+            <option value="Reglamentos">Reglamentos</option>
+            <option value="Actas">Actas</option>
+            <option value="Contratos">Contratos</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Área responsable</label>
+          <select [(ngModel)]="newDoc.area" class="form-input">
+            <option value="">Todas las áreas</option>
+            <option value="RRHH">RRHH</option>
+            <option value="Sistemas">Sistemas</option>
+            <option value="Operaciones">Operaciones</option>
+            <option value="Ventas">Ventas</option>
+            <option value="Finanzas">Finanzas</option>
+            <option value="Logística">Logística</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Versión</label>
+          <input type="text" [(ngModel)]="newDoc.version" placeholder="Ej: v1.0" class="form-input" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea [(ngModel)]="newDoc.description" placeholder="Describe brevemente el contenido del documento..." class="form-textarea" rows="2"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Archivo *</label>
+        <div class="file-upload-area" (click)="fileInput.click()">
+          <input #fileInput type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip" (change)="onFileSelected($event)" style="display:none" />
+          @if (newDoc.fileName) {
+            <div class="file-selected">
+              <span class="file-icon">{{ getFileIcon(newDoc.fileName) }}</span>
+              <span class="file-name">{{ newDoc.fileName }}</span>
+              <span class="file-size">{{ newDoc.fileSize }}</span>
+            </div>
+          } @else {
+            <div class="upload-placeholder">
+              <span class="upload-icon">📎</span>
+              <p>Haz clic para seleccionar un archivo</p>
+              <small>PDF, Word, Excel, PowerPoint, ZIP · Máx. 50MB</small>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="toggleUploadForm()">Cancelar</button>
+        <button class="btn-upload-doc" (click)="uploadDocument()" [disabled]="!newDoc.name || !newDoc.category || !newDoc.file">
+          Cargar documento
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Buscador y filtros -->
+  <div class="documents-filters">
+    <input type="text" [(ngModel)]="searchText" (ngModelChange)="filterDocuments()" placeholder="🔍 Buscar documento..." class="search-input" />
+    <select [(ngModel)]="filterCategory" (ngModelChange)="filterDocuments()" class="filter-select">
+      <option value="">Todas las categorías</option>
+      <option value="Políticas">Políticas</option>
+      <option value="Manuales">Manuales</option>
+      <option value="Formatos">Formatos</option>
+      <option value="Reglamentos">Reglamentos</option>
+      <option value="Actas">Actas</option>
+      <option value="Contratos">Contratos</option>
+      <option value="Otros">Otros</option>
+    </select>
+  </div>
+
+  <!-- Lista de documentos -->
+  <div class="documents-grid">
+    @if (filteredDocuments.length === 0) {
+      <div class="empty-state">
+        <span>📂</span>
+        <p>No se encontraron documentos</p>
+      </div>
+    }
+    @for (doc of filteredDocuments; track doc.id) {
+      <div class="document-card">
+        <div class="doc-icon">{{ getFileIcon(doc.fileName) }}</div>
+        <div class="doc-info">
+          <h4>{{ doc.name }}</h4>
+          <p class="doc-description">{{ doc.description }}</p>
+          <div class="doc-meta">
+            <span class="doc-category">{{ doc.category }}</span>
+            @if (doc.area) { <span class="doc-area">{{ doc.area }}</span> }
+            @if (doc.version) { <span class="doc-version">{{ doc.version }}</span> }
+          </div>
+          <div class="doc-footer">
+            <span class="doc-date">{{ doc.uploadedAt }}</span>
+            <span class="doc-author">por {{ doc.uploadedBy }}</span>
+          </div>
+        </div>
+        <div class="doc-actions">
+          <button class="btn-download" title="Descargar">⬇️</button>
+          <button class="btn-view" title="Ver">👁️</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
