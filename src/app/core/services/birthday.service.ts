@@ -8,24 +8,40 @@ export interface BirthdayResponse {
   firstName: string;
   lastName: string;
   sede: string;
-  birthdayDate: string;
+  birthdayDate: string; // YYYY-MM-DD
 }
 
 @Injectable({ providedIn: 'root' })
 export class BirthdayService {
   private readonly apiUrl = `${API_ENDPOINTS.birthdays}`;
 
-  // MOCK - cumpleaños de usuarios reales (fechas aproximadas para presentación)
+  // MOCK — fechas de nacimiento reales desde param_empleados
   private mockBirthdays: BirthdayResponse[] = [
-    { firstName: 'Jorge',   lastName: 'Barbosa',  birthdayDate: '1985-03-18', sede: 'Bogotá'   },
-    { firstName: 'Dilson',  lastName: 'Otalvaro', birthdayDate: '1990-03-22', sede: 'Bogotá'   },
-    { firstName: 'Marcela', lastName: 'Arias',    birthdayDate: '1992-04-05', sede: 'Medellín' },
-    { firstName: 'Julián',  lastName: 'Valencia', birthdayDate: '1988-05-14', sede: 'Cali'     },
-    { firstName: 'Juan',    lastName: 'Giraldo',  birthdayDate: '1994-06-30', sede: 'Bogotá'   },
-    { firstName: 'Sara',    lastName: 'Botero',   birthdayDate: '1997-07-11', sede: 'Medellín' },
-    { firstName: 'Viviana', lastName: 'Arias',    birthdayDate: '1993-08-25', sede: 'Bogotá'   },
-    { firstName: 'Carlos',  lastName: 'Muriel',   birthdayDate: '1989-09-03', sede: 'Cali'     },
-    { firstName: 'Yuliana', lastName: 'Guzmán',   birthdayDate: '1995-10-17', sede: 'Bogotá'   },
+    { firstName: 'Soporte',         lastName: 'TIC',                    birthdayDate: '1983-01-17', sede: 'Armenia'         },
+    { firstName: 'Jorge',           lastName: 'Barbosa Vargas',          birthdayDate: '1969-08-09', sede: 'Armenia'         },
+    { firstName: 'Oscar',           lastName: 'Pérez Acosta',            birthdayDate: '1980-11-04', sede: 'Armenia'         },
+    { firstName: 'Harold',          lastName: 'Roldán',                  birthdayDate: '1981-01-31', sede: 'Armenia'         },
+    { firstName: 'Jackeline',       lastName: 'Cuta Bernal',             birthdayDate: '1994-01-06', sede: 'Armenia'         },
+    { firstName: 'Dilson',          lastName: 'Otalvaro Ortiz',          birthdayDate: '1990-01-16', sede: 'Armenia'         },
+    { firstName: 'Martin',          lastName: 'Pineda Álvarez',          birthdayDate: '1985-10-21', sede: 'Armenia'         },
+    { firstName: 'Jair',            lastName: 'Guardo Palacios',         birthdayDate: '1991-02-17', sede: 'Costa Atlántica' },
+    { firstName: 'Jim',             lastName: 'Oneill Henry',            birthdayDate: '1976-12-29', sede: 'Costa Atlántica' },
+    { firstName: 'Jhon',            lastName: 'Orellano Altamirano',     birthdayDate: '1979-01-26', sede: 'Costa Atlántica' },
+    { firstName: 'Welinton',        lastName: 'Cardales Hernández',      birthdayDate: '1977-11-07', sede: 'Costa Atlántica' },
+    { firstName: 'Doris',           lastName: 'Blanco de la Asunción',   birthdayDate: '1977-09-09', sede: 'Costa Atlántica' },
+    { firstName: 'Yeison',          lastName: 'Cruz Pineda',             birthdayDate: '2003-12-18', sede: 'Boyacá'          },
+    { firstName: 'Dayana',          lastName: 'Molina Diagama',          birthdayDate: '2002-03-02', sede: 'Boyacá'          },
+    { firstName: 'Angie',           lastName: 'Vargas Montenegro',       birthdayDate: '2000-03-08', sede: 'Boyacá'          },
+    { firstName: 'Andrés',          lastName: 'Guevara Castiblanco',     birthdayDate: '1992-06-25', sede: 'Boyacá'          },
+    { firstName: 'Lady',            lastName: 'Alfonso Pinzón',          birthdayDate: '1994-03-06', sede: 'Boyacá'          },
+    { firstName: 'Darlin',          lastName: 'Aguilar Rojas',           birthdayDate: '2005-07-06', sede: 'Boyacá'          },
+    { firstName: 'Maria Alejandra', lastName: 'Nontoa Rincón',           birthdayDate: '1995-01-05', sede: 'Boyacá'          },
+    { firstName: 'Yenny',           lastName: 'Rojas Peña',              birthdayDate: '1983-07-30', sede: 'Boyacá'          },
+    { firstName: 'Jorge',           lastName: 'Sanabria Gallo',          birthdayDate: '1966-06-25', sede: 'Boyacá'          },
+    { firstName: 'Jenry',           lastName: 'Ferrucho García',         birthdayDate: '1979-03-02', sede: 'Boyacá'          },
+    { firstName: 'John',            lastName: 'Torres Siza',             birthdayDate: '1979-12-11', sede: 'Boyacá'          },
+    { firstName: 'Abdenago',        lastName: 'Hernández Quemba',        birthdayDate: '1974-07-27', sede: 'Boyacá'          },
+    { firstName: 'Luis',            lastName: 'Russi Garzón',            birthdayDate: '1970-10-18', sede: 'Boyacá'          },
   ];
 
   constructor(
@@ -35,10 +51,7 @@ export class BirthdayService {
 
   getAllBirthdays(): Observable<BirthdayResponse[]> {
     if (!isPlatformBrowser(this.platformId)) return of([]);
-
-    // TODO: cuando el monolito esté listo, eliminar el mock y descomentar:
-    // return this.http.get<BirthdayResponse[]>(this.apiUrl);
-
+    // TODO: return this.http.get<BirthdayResponse[]>(this.apiUrl);
     return of(this.mockBirthdays);
   }
 }

@@ -10,18 +10,36 @@ import { PasswordCredentials } from '../../pages/admin/change-password/change-pa
 export class AuthService {
   private apiUrl = `${API_ENDPOINTS.auth}`;
 
-  // MOCK - usuarios reales. Usuario: primernombre.primerapellido | Contraseña: número de cédula
+  // MOCK — usuario: primernombre.primerapellido | contraseña: número de identificación
   private mockUsers = [
-    { username: 'super.usuario',   email: 'super.usuario@licodist.com',   password: '1000000001', role: 'SUPER_ADMIN', cedula: '1000000001' },
-    { username: 'jorge.barbosa',   email: 'jorge.barbosa@licodist.com',   password: '1000000002', role: 'ADMIN',       cedula: '1000000002' },
-    { username: 'dilson.otalvaro', email: 'dilson.otalvaro@licodist.com', password: '1000000003', role: 'USER',        cedula: '1000000003' },
-    { username: 'marcela.arias',   email: 'marcela.arias@licodist.com',   password: '1000000004', role: 'USER',        cedula: '1000000004' },
-    { username: 'julian.valencia', email: 'julian.valencia@licodist.com', password: '1000000005', role: 'USER',        cedula: '1000000005' },
-    { username: 'juan.giraldo',    email: 'juan.giraldo@licodist.com',    password: '1000000006', role: 'USER',        cedula: '1000000006' },
-    { username: 'sara.botero',     email: 'sara.botero@licodist.com',     password: '1000000007', role: 'USER',        cedula: '1000000007' },
-    { username: 'viviana.arias',   email: 'viviana.arias@licodist.com',   password: '1000000008', role: 'USER',        cedula: '1000000008' },
-    { username: 'carlos.muriel',   email: 'carlos.muriel@licodist.com',   password: '1000000009', role: 'USER',        cedula: '1000000009' },
-    { username: 'yuliana.guzman',  email: 'yuliana.guzman@licodist.com',  password: '1000000010', role: 'USER',        cedula: '1000000010' },
+    // Armenia (centro_op: 1)
+    { username: 'soporte.tic',       password: '900150462',   role: 'SUPER_ADMIN' },
+    { username: 'jorge.barbosa',     password: '17341621',    role: 'ADMIN'       },
+    { username: 'oscar.perez',       password: '13745876',    role: 'USER'        },
+    { username: 'harold.roldan',     password: '14566777',    role: 'USER'        },
+    { username: 'jackeline.cuta',    password: '1097400835',  role: 'USER'        },
+    { username: 'dilson.otalvaro',   password: '1094910114',  role: 'USER'        },
+    { username: 'martin.pineda',     password: '1121706393',  role: 'USER'        },
+    // Costa Atlántica (centro_op: 4)
+    { username: 'jair.guardo',       password: '1123627688',  role: 'USER'        },
+    { username: 'jim.oneill',        password: '18004466',    role: 'USER'        },
+    { username: 'jhon.orellano',     password: '18008467',    role: 'USER'        },
+    { username: 'welinton.cardales', password: '18009045',    role: 'USER'        },
+    { username: 'doris.blanco',      password: '40990369',    role: 'USER'        },
+    // Boyacá (centro_op: 2)
+    { username: 'yeison.cruz',       password: '1002331225',  role: 'USER'        },
+    { username: 'dayana.molina',     password: '1002397120',  role: 'USER'        },
+    { username: 'angie.vargas',      password: '1007333113',  role: 'USER'        },
+    { username: 'andres.guevara',    password: '1049630058',  role: 'USER'        },
+    { username: 'lady.alfonso',      password: '1052313923',  role: 'USER'        },
+    { username: 'darlin.aguilar',    password: '1052837676',  role: 'USER'        },
+    { username: 'maria.nontoa',      password: '1057591382',  role: 'USER'        },
+    { username: 'yenny.rojas',       password: '33369566',    role: 'USER'        },
+    { username: 'jorge.sanabria',    password: '4251952',     role: 'USER'        },
+    { username: 'jenry.ferrucho',    password: '7176714',     role: 'USER'        },
+    { username: 'john.torres',       password: '7177126',     role: 'USER'        },
+    { username: 'abdenago.hernandez',password: '74333745',    role: 'USER'        },
+    { username: 'luis.russi',        password: '79547934',    role: 'USER'        },
   ];
 
   constructor(
@@ -32,19 +50,19 @@ export class AuthService {
   login(credentials: LoginCredentials): Observable<any> {
     if (!isPlatformBrowser(this.platformId)) return of(null);
 
-    // TODO: cuando el monolito esté listo, eliminar el mock y descomentar:
+    // TODO: cuando el backend esté listo, eliminar el mock y descomentar:
     // return this.http.post(`${this.apiUrl}/login`, credentials);
 
     const found = this.mockUsers.find(
       u =>
-        (u.email === credentials.email || u.username === credentials.email.toLowerCase()) &&
-        u.password === credentials.password
+        u.username === credentials.email.toLowerCase().trim() &&
+        u.password === credentials.password.trim()
     );
 
     if (found) {
       const header  = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
       const payload = btoa(JSON.stringify({
-        sub: found.email,
+        sub: found.username,
         username: found.username,
         role: found.role,
         exp: Math.floor(Date.now() / 1000) + 3600
@@ -54,14 +72,12 @@ export class AuthService {
 
     return throwError(() => ({
       status: 400,
-      error: { message: 'Correo o contraseña incorrectos' }
+      error: { message: 'Usuario o contraseña incorrectos' }
     }));
   }
 
   changePassword(credentials: PasswordCredentials): Observable<any> {
     if (!isPlatformBrowser(this.platformId)) return of(null);
-
-    // TODO: return this.http.put(`${this.apiUrl}/password`, credentials);
     return of({ message: 'Contraseña actualizada correctamente' });
   }
 }
