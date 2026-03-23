@@ -75,21 +75,38 @@ export class HomeRightComponent implements OnInit {
 
   getLimitedBirthdays(): Birthday[] {
     const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentDay = today.getDate();
+    const todayMonth = today.getMonth();
+    const todayDay   = today.getDate();
 
-    const thisMonth = this.birthdays.filter(b =>
-      b.date.getMonth() === currentMonth && b.date.getDate() >= currentDay
-    );
+    // Calcular días que faltan para cada cumpleaños (circular por año)
+    const withDistance = this.birthdays.map(b => {
+      const bMonth = b.date.getMonth();
+      const bDay   = b.date.getDate();
 
-    // Si hay del mes actual, mostrar hasta 3; si no, próximos 3
-    const source = thisMonth.length > 0 ? thisMonth : this.birthdays;
-    return source.slice(0, 3);
+      // diff en días aproximado (mes*31 + dia): 0 = hoy
+      let diff = (bMonth - todayMonth) * 31 + (bDay - todayDay);
+      if (diff < 0) diff += 365; // ya pasó este año → aparece el próximo
+
+      return { birthday: b, diff };
+    });
+
+    // Los 3 más próximos a partir de hoy
+    return withDistance
+      .sort((a, b) => a.diff - b.diff)
+      .slice(0, 3)
+      .map(x => x.birthday);
   }
 
   formatDate(date: Date): string {
     const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const fixed = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    const fixed  = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    const today  = new Date();
+
+    const sameDay   = fixed.getDate()  === today.getDate()  && fixed.getMonth() === today.getMonth();
+    const tomorrow  = fixed.getDate()  === today.getDate() + 1 && fixed.getMonth() === today.getMonth();
+
+    if (sameDay)  return '🎉 ¡Hoy!';
+    if (tomorrow) return '🎈 Mañana';
     return `${fixed.getDate()} ${months[fixed.getMonth()]}`;
   }
 
