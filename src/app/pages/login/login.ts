@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { LoginFacade } from './login.facade';
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -16,7 +16,7 @@ export interface LoginCredentials {
   styleUrls: ['./login.scss']
 })
 export class Login {
-  email = '';
+  username = '';
   password = '';
   showModal = false;
 
@@ -24,7 +24,7 @@ export class Login {
 
   onSubmit() {
     const credentials: LoginCredentials = {
-      email: this.email,
+      username: this.username,
       password: this.password
     };
     this.facade.login(credentials);

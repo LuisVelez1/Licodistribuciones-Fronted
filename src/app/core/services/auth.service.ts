@@ -20,7 +20,7 @@ export class AuthService {
     { username: 'jackeline.cuta',    password: '1097400835',  role: 'USER'        },
     { username: 'dilson.otalvaro',   password: '1094910114',  role: 'USER'        },
     { username: 'martin.pineda',     password: '1121706393',  role: 'USER'        },
-    // Costa Atlántica (centro_op: 4)
+    // San Andrés (centro_op: 4)
     { username: 'jair.guardo',       password: '1123627688',  role: 'USER'        },
     { username: 'jim.oneill',        password: '18004466',    role: 'USER'        },
     { username: 'jhon.orellano',     password: '18008467',    role: 'USER'        },
@@ -55,7 +55,7 @@ export class AuthService {
 
     const found = this.mockUsers.find(
       u =>
-        u.username === credentials.email.toLowerCase().trim() &&
+        u.username === credentials.username.toLowerCase().trim() &&
         u.password === credentials.password.trim()
     );
 
