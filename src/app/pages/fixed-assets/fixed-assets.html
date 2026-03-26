@@ -3,7 +3,7 @@
   <!-- ── Encabezado ── -->
   <div class="assets-header">
     <div>
-      <h2>🏷️ Activos Fijos</h2>
+      <h2>Activos Fijos</h2>
       <p class="subtitle">{{ assets.length }} activos registrados · Valor total: {{ formatCurrency(totalValue) }}</p>
     </div>
     <button class="btn-add" (click)="toggleForm()">➕ Registrar activo</button>
@@ -36,7 +36,7 @@
   <!-- ── Formulario nuevo activo ── -->
   @if (showForm) {
     <div class="form-card">
-      <h3>📦 Registrar nuevo activo</h3>
+      <h3>Registrar nuevo activo</h3>
       <div class="form-row">
         <div class="form-group">
           <label>Nombre / Descripción *</label>
@@ -141,7 +141,7 @@
   <!-- ── Tabla ── -->
   <div class="assets-table-wrapper">
     @if (filteredAssets.length === 0) {
-      <div class="empty-state"><span>📦</span><p>No se encontraron activos</p></div>
+      <div class="empty-state"><span></span><p>No se encontraron activos</p></div>
     } @else {
       <table class="assets-table">
         <thead>
@@ -172,7 +172,7 @@
                 </div>
               </td>
               <td><code class="serial">{{ asset.serial || '—' }}</code></td>
-              <td><span class="sede-badge {{ asset.sede | lowercase | replace:' ':'-' }}">{{ asset.sede }}</span></td>
+              <td><span class="sede-badge {{ asset.sede | lowercase }}">{{ asset.sede }}</span></td>
               <td>{{ asset.assignedTo || '—' }}</td>
               <td>{{ asset.acquisitionDate | date:'dd/MM/yyyy' }}</td>
               <td class="value-cell">{{ formatCurrency(asset.acquisitionValue) }}</td>

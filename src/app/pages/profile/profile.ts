@@ -12,7 +12,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   standalone: true,
   imports: [CommonModule, MatCardModule, MatTabsModule, ProfileFormComponent],
   template: `
-  <h2>Perfil</h2>
     @if (user) {
     <div class="profile-container">
       <mat-card class="profile-card">
