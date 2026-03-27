@@ -77,9 +77,30 @@
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group employee-search-group">
           <label>Asignado a</label>
-          <input type="text" [(ngModel)]="newAsset.assignedTo" placeholder="Nombre del responsable" class="form-input" />
+          <div class="employee-search-wrap">
+            <input type="text" [value]="employeeSearch"
+              (input)="searchEmployee($any($event.target).value)"
+              placeholder="Buscar empleado por nombre o cargo..."
+              class="form-input" autocomplete="off" />
+            @if (newAsset.assignedTo) {
+              <button class="clear-emp" (click)="clearEmployee()" type="button">✕</button>
+            }
+            @if (showEmployeeDropdown) {
+              <div class="employee-dropdown">
+                @for (emp of employeeResults; track emp.id) {
+                  <div class="employee-option" (click)="selectEmployee(emp)">
+                    <div class="emp-avatar">{{ emp.name[0] }}</div>
+                    <div class="emp-data">
+                      <div class="emp-name">{{ emp.name }}</div>
+                      <div class="emp-role">{{ emp.position }} · {{ emp.sede }}</div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
         </div>
         <div class="form-group">
           <label>Fecha de adquisición</label>

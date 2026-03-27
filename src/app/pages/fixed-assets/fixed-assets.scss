@@ -117,3 +117,37 @@
   .form-row { grid-template-columns: 1fr; }
   .filters-row { flex-direction: column; }
 }
+
+/* ── Employee searcher ── */
+.employee-search-group { position: relative; }
+.employee-search-wrap { position: relative; }
+
+.clear-emp {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none; color: var(--color-text-soft);
+  cursor: pointer; font-size: 14px; padding: 0; line-height: 1;
+}
+
+.employee-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #fff; border: 1.5px solid var(--color-accent); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(10,20,45,0.15); z-index: 100; overflow: hidden;
+  max-height: 240px; overflow-y: auto;
+}
+
+.employee-option {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  cursor: pointer; transition: background 0.15s;
+  border-bottom: 1px solid #f5f0ea;
+  &:last-child { border-bottom: none; }
+  &:hover { background: #fdf4ef; }
+
+  .emp-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-accent), var(--color-brown));
+    color: #fff; font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .emp-name { font-size: 13px; font-weight: 600; color: var(--color-primary); }
+  .emp-role { font-size: 11px; color: var(--color-text-soft); margin-top: 1px; }
+}

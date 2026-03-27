@@ -140,3 +140,62 @@
   span { font-size: 48px; }
   p { font-size: 16px; margin-top: 12px; }
 }
+
+/* ── Preview modal ── */
+.preview-backdrop {
+  position: fixed; inset: 0; background: rgba(10,20,45,0.7);
+  display: flex; align-items: center; justify-content: center; z-index: 3000;
+}
+.preview-modal {
+  background: #fff; border-radius: 14px; width: 90vw; max-width: 900px;
+  height: 85vh; display: flex; flex-direction: column;
+  box-shadow: 0 8px 40px rgba(10,20,45,0.3); overflow: hidden;
+}
+.preview-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 20px; border-bottom: 1px solid #f0ebe3; background: var(--color-primary);
+  color: #fff; flex-shrink: 0;
+  .preview-title { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; }
+  .preview-header-actions { display: flex; gap: 8px; align-items: center; }
+  .btn-dl {
+    background: var(--color-accent); color: #fff; border: none; border-radius: 6px;
+    padding: 6px 14px; cursor: pointer; font-size: 13px; font-weight: 500;
+    &:hover { background: #b34415; }
+  }
+  .btn-close-modal {
+    background: rgba(255,255,255,0.15); border: none; color: #fff; border-radius: 6px;
+    padding: 6px 12px; cursor: pointer; font-size: 16px;
+    &:hover { background: rgba(255,255,255,0.25); }
+  }
+}
+.preview-body { flex: 1; overflow: hidden; }
+.preview-frame { width: 100%; height: 100%; border: none; }
+.preview-placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; padding: 40px; text-align: center; gap: 16px;
+  .preview-icon { font-size: 72px; }
+  h3 { font-family: var(--font-title); font-size: 22px; color: var(--color-primary); &::after{display:none;} }
+  p { color: var(--color-text-soft); font-size: 14px; max-width: 400px; }
+  .preview-meta {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    span { background: #f5f0ea; border-radius: 20px; padding: 4px 14px; font-size: 13px; color: var(--color-primary); }
+  }
+  .btn-dl-big {
+    background: var(--color-accent); color: #fff; border: none; border-radius: 10px;
+    padding: 12px 28px; cursor: pointer; font-size: 15px; font-weight: 600; margin-top: 8px;
+    font-family: var(--font-body);
+    &:hover { background: #b34415; }
+  }
+}
+
+/* ── Mejora botones doc-actions ── */
+.doc-actions {
+  display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+  .btn-action {
+    border: none; border-radius: 8px; padding: 7px 12px;
+    cursor: pointer; font-size: 13px; font-weight: 500; font-family: var(--font-body);
+    transition: background 0.2s;
+    &.preview { background: var(--color-primary); color: #fff; &:hover { background: #1a2d55; } }
+    &.download { background: var(--color-accent); color: #fff; &:hover { background: #b34415; } }
+  }
+}

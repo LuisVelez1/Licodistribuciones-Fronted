@@ -44,6 +44,38 @@ export class FixedAssetsComponent {
 
   newAsset: Partial<FixedAsset> & { acquisitionValueStr?: string } = {};
 
+  // Employee searcher
+  employeeSearch = '';
+  employeeResults: any[] = [];
+  showEmployeeDropdown = false;
+
+  private allEmployees = [
+    { id:'2',   name:'Jorge Barbosa',          position:'Gerente / Sistemas',           sede:'Quindío' },
+    { id:'125', name:'Oscar Pérez Acosta',      position:'Key Account Manager',          sede:'Quindío' },
+    { id:'126', name:'Harold Roldán',            position:'Director Comercial',           sede:'Quindío' },
+    { id:'127', name:'Jackeline Cuta Bernal',    position:'Recepcionista',               sede:'Quindío' },
+    { id:'128', name:'Dilson Otalvaro Ortiz',    position:'Coord. Talento Humano',        sede:'Quindío' },
+    { id:'129', name:'Martin Pineda Álvarez',    position:'Conductor',                   sede:'Quindío' },
+    { id:'130', name:'Jair Guardo Palacios',     position:'Aux. Bodega',                 sede:'San Andrés' },
+    { id:'131', name:'Jim Oneill Henry',          position:'Conductor',                   sede:'San Andrés' },
+    { id:'132', name:'Jhon Orellano Altamirano', position:'Aux. Bodega',                 sede:'San Andrés' },
+    { id:'133', name:'Welinton Cardales',         position:'Aux. Bodega',                 sede:'San Andrés' },
+    { id:'134', name:'Doris Blanco',              position:'Aux. Administrativa',         sede:'San Andrés' },
+    { id:'135', name:'Yeison Cruz Pineda',        position:'Aux. Bodega',                 sede:'Boyacá' },
+    { id:'136', name:'Dayana Molina Diagama',     position:'Aux. Punto de Venta',         sede:'Boyacá' },
+    { id:'137', name:'Angie Vargas Montenegro',   position:'Aux. Punto de Venta',         sede:'Boyacá' },
+    { id:'138', name:'Andrés Guevara',            position:'Aux. Cartera',                sede:'Boyacá' },
+    { id:'139', name:'Lady Alfonso Pinzón',       position:'Aux. Contable',               sede:'Boyacá' },
+    { id:'140', name:'Darlin Aguilar Rojas',      position:'Cajera',                      sede:'Boyacá' },
+    { id:'141', name:'Maria Alejandra Nontoa',    position:'Aux. Contable',               sede:'Boyacá' },
+    { id:'142', name:'Yenny Rojas Peña',          position:'Cajera',                      sede:'Boyacá' },
+    { id:'143', name:'Jorge Sanabria Gallo',      position:'Aux. Bodega',                 sede:'Boyacá' },
+    { id:'144', name:'Jenry Ferrucho García',     position:'Aux. Bodega',                 sede:'Boyacá' },
+    { id:'145', name:'John Torres Siza',           position:'Aux. Bodega',                 sede:'Boyacá' },
+    { id:'146', name:'Abdenago Hernández',         position:'Aux. Bodega',                 sede:'Boyacá' },
+    { id:'147', name:'Luis Russi Garzón',          position:'Gerente Regional',            sede:'Boyacá' },
+  ];
+
   assets: FixedAsset[] = [
     { id: '1', code: 'CP-LICO-0001', name: 'Lenovo — Portátil', category: 'Portátil', brand: 'Lenovo', serial: 'PW-OBL48N', location: 'Quindío', area: 'Sistemas', assignedTo: 'Jorge Barbosa', status: 'activo', acquisitionDate: '2025-03-15', acquisitionValue: 4000000, description: 'EQUIPO PORTATIL NUEVO', sede: 'Quindío' },
     { id: '2', code: 'MON-LICO-0001', name: 'Dahua — Monitor', category: 'Monitor', brand: 'Dahua', serial: 'BAD01916301150396', location: 'Quindío', area: 'Sistemas', assignedTo: 'Jorge Barbosa', status: 'activo', acquisitionDate: '2025-10-20', acquisitionValue: 520000, description: 'MONITOR 27\"', sede: 'Quindío' },
@@ -225,6 +257,30 @@ export class FixedAssetsComponent {
     return new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(v);
   }
 
+
+  searchEmployee(text: string) {
+    this.employeeSearch = text;
+    if (text.length < 2) { this.employeeResults = []; this.showEmployeeDropdown = false; return; }
+    this.employeeResults = this.allEmployees.filter(e =>
+      e.name.toLowerCase().includes(text.toLowerCase()) ||
+      e.position.toLowerCase().includes(text.toLowerCase())
+    ).slice(0, 6);
+    this.showEmployeeDropdown = this.employeeResults.length > 0;
+  }
+
+  selectEmployee(emp: any) {
+    this.newAsset.assignedTo = emp.name;
+    if (!this.newAsset.sede) this.newAsset.sede = emp.sede;
+    this.employeeSearch = emp.name;
+    this.showEmployeeDropdown = false;
+    this.employeeResults = [];
+  }
+
+  clearEmployee() {
+    this.newAsset.assignedTo = undefined;
+    this.employeeSearch = '';
+    this.showEmployeeDropdown = false;
+  }
 
   getSedeCss(sede: string): string {
     return sede.toLowerCase().replace(' ','-').normalize('NFD').replace(/[\u0300-\u036f]/g,'');

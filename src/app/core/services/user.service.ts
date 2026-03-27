@@ -3,331 +3,84 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, Observable, of } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { API_ENDPOINTS } from '../constants/api.constants';
-import { LoginInfo } from '../models/login-info.models';
 import { User } from '../models/user.model';
 import { UserA } from '../models/user-admin.model';
 
-// Mapa de cargos según param_cargos inferido del sistema
 const CARGOS: Record<string, string> = {
-  '1':  'Gerente / Sistemas',
-  '2':  'Key Account Manager',
-  '5':  'Coordinador Talento Humano',
-  '8':  'Recepcionista / Aux. Administrativa',
-  '11': 'Conductor',
-  '12': 'Auxiliar de Bodega / Distribución',
-  '13': 'Auxiliar de Punto de Venta',
-  '14': 'Cajera',
-  '15': 'Aux. Contable',
-  '16': 'Aux. Cartera',
-  '17': 'Gerente Regional',
-  '18': 'Director Comercial',
+  '1': 'Gerente / Sistemas', '2': 'Key Account Manager',
+  '5': 'Coordinador Talento Humano', '8': 'Recepcionista / Aux. Administrativa',
+  '11': 'Conductor', '12': 'Auxiliar de Bodega / Distribución',
+  '13': 'Auxiliar Punto de Venta', '14': 'Cajera',
+  '15': 'Aux. Contable', '16': 'Aux. Cartera',
+  '17': 'Gerente Regional', '18': 'Director Comercial',
 };
 
-// Mapa de sedes según centro_op
 const SEDES: Record<string, string> = {
-  '1': 'Armenia',
-  '2': 'Boyacá',
-  '3': 'Eje Cafetero',
-  '4': 'Costa Atlántica',
+  '1': 'Quindío', '2': 'Boyacá', '3': 'Eje Cafetero', '4': 'San Andrés',
 };
 
-// Mapa de áreas según cargo
 const AREA_POR_CARGO: Record<string, string> = {
-  '1':  'Sistemas',
-  '2':  'Comercial',
-  '5':  'Talento Humano',
-  '8':  'Administrativa',
-  '11': 'Logística',
-  '12': 'Logística',
-  '13': 'Ventas',
-  '14': 'Ventas',
-  '15': 'Contabilidad',
-  '16': 'Cartera',
-  '17': 'Gerencia',
-  '18': 'Comercial',
+  '1': 'Sistemas', '2': 'Comercial', '5': 'Talento Humano',
+  '8': 'Administrativa', '11': 'Logística', '12': 'Logística',
+  '13': 'Ventas', '14': 'Ventas', '15': 'Contabilidad',
+  '16': 'Cartera', '17': 'Gerencia', '18': 'Comercial',
 };
+
+function toName(first: string, last: string): { firstName: string; lastName: string } {
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  return {
+    firstName: first.split(' ').map(cap).join(' '),
+    lastName: last.split(' ').filter(Boolean).map(cap).join(' '),
+  };
+}
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private apiUrl = `${API_ENDPOINTS.users}`;
 
-  // MOCK — datos reales de param_empleados (licodi_intranet)
   private mockUsers: UserA[] = [
-    {
-      id: '1',
-      firstName: 'Soporte',
-      lastName: 'TIC',
-      email: '',
-      phone: '',
-      position: CARGOS['1'],
-      sede: SEDES['1'],
-      area: AREA_POR_CARGO['1'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '2',
-      firstName: 'Jorge',
-      lastName: 'Barbosa Vargas',
-      email: 'sistemas@licodistribuciones.com',
-      phone: '3223392856',
-      position: CARGOS['1'],
-      sede: SEDES['1'],
-      area: AREA_POR_CARGO['1'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '125',
-      firstName: 'Oscar',
-      lastName: 'Pérez Acosta',
-      email: 'kam@licodistribuciones.com',
-      phone: '3102295152',
-      position: CARGOS['2'],
-      sede: SEDES['1'],
-      area: AREA_POR_CARGO['2'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '126',
-      firstName: 'Harold',
-      lastName: 'Roldán',
-      email: 'consumo@licodistribuciones.com',
-      phone: '3168320496',
-      position: CARGOS['18'],
-      sede: SEDES['1'],
-      area: AREA_POR_CARGO['18'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '127',
-      firstName: 'Jackeline',
-      lastName: 'Cuta Bernal',
-      email: 'recepcion@licodistribuciones.com',
-      phone: '3206777736',
-      position: CARGOS['8'],
-      sede: SEDES['1'],
-      area: AREA_POR_CARGO['8'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '128',
-      firstName: 'Dilson',
-      lastName: 'Otalvaro Ortiz',
-      email: 'talentohumano@licodistribuciones.com',
-      phone: '3206682609',
-      position: CARGOS['5'],
-      sede: SEDES['1'],
-      area: AREA_POR_CARGO['5'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '129',
-      firstName: 'Martin',
-      lastName: 'Pineda Álvarez',
-      email: '',
-      phone: '3223974626',
-      position: CARGOS['11'],
-      sede: SEDES['1'],
-      area: AREA_POR_CARGO['11'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '130',
-      firstName: 'Jair',
-      lastName: 'Guardo Palacios',
-      email: '',
-      phone: '3183230542',
-      position: CARGOS['12'],
-      sede: SEDES['4'],
-      area: AREA_POR_CARGO['12'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '131',
-      firstName: 'Jim',
-      lastName: 'Oneill Henry',
-      email: '',
-      phone: '3108140166',
-      position: CARGOS['11'],
-      sede: SEDES['4'],
-      area: AREA_POR_CARGO['11'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '132',
-      firstName: 'Jhon',
-      lastName: 'Orellano Altamirano',
-      email: '',
-      phone: '3152043508',
-      position: CARGOS['12'],
-      sede: SEDES['4'],
-      area: AREA_POR_CARGO['12'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '133',
-      firstName: 'Welinton',
-      lastName: 'Cardales Hernández',
-      email: '',
-      phone: '3187654070',
-      position: CARGOS['12'],
-      sede: SEDES['4'],
-      area: AREA_POR_CARGO['12'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '134',
-      firstName: 'Doris',
-      lastName: 'Blanco de la Asunción',
-      email: '',
-      phone: '3127750925',
-      position: CARGOS['8'],
-      sede: SEDES['4'],
-      area: AREA_POR_CARGO['8'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '135',
-      firstName: 'Yeison',
-      lastName: 'Cruz Pineda',
-      email: '',
-      phone: '3123508432',
-      position: CARGOS['12'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['12'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '136',
-      firstName: 'Dayana',
-      lastName: 'Molina Diagama',
-      email: '',
-      phone: '3209793140',
-      position: CARGOS['13'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['13'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '137',
-      firstName: 'Angie',
-      lastName: 'Vargas Montenegro',
-      email: 'supermercadosboyaca@licodistribuciones.com',
-      phone: '3102782630',
-      position: CARGOS['13'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['13'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '138',
-      firstName: 'Andrés',
-      lastName: 'Guevara Castiblanco',
-      email: '',
-      phone: '3177146690',
-      position: CARGOS['16'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['16'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '139',
-      firstName: 'Lady',
-      lastName: 'Alfonso Pinzón',
-      email: '',
-      phone: '3138181604',
-      position: CARGOS['15'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['15'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '140',
-      firstName: 'Darlin',
-      lastName: 'Aguilar Rojas',
-      email: '',
-      phone: '3228859078',
-      position: CARGOS['14'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['14'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '141',
-      firstName: 'Maria Alejandra',
-      lastName: 'Nontoa Rincón',
-      email: '',
-      phone: '3107964311',
-      position: CARGOS['15'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['15'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '142',
-      firstName: 'Yenny',
-      lastName: 'Rojas Peña',
-      email: '',
-      phone: '3112233283',
-      position: CARGOS['14'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['14'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '143',
-      firstName: 'Jorge',
-      lastName: 'Sanabria Gallo',
-      email: '',
-      phone: '3108803757',
-      position: CARGOS['12'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['12'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '144',
-      firstName: 'Jenry',
-      lastName: 'Ferrucho García',
-      email: '',
-      phone: '3138917163',
-      position: CARGOS['12'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['12'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '145',
-      firstName: 'John',
-      lastName: 'Torres Siza',
-      email: '',
-      phone: '3103336853',
-      position: CARGOS['12'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['12'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '146',
-      firstName: 'Abdenago',
-      lastName: 'Hernández Quemba',
-      email: '',
-      phone: '3115487541',
-      position: CARGOS['12'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['12'],
-      status: 'ACTIVE',
-    },
-    {
-      id: '147',
-      firstName: 'Luis',
-      lastName: 'Russi Garzón',
-      email: 'gerenciaboyaca@licodistribuciones.com',
-      phone: '3003178380',
-      position: CARGOS['17'],
-      sede: SEDES['2'],
-      area: AREA_POR_CARGO['17'],
-      status: 'ACTIVE',
-    },
+    // — Todos los empleados de param_empleados —
+    ...([
+      { id:'1',   ced:'900150462',  fn:'SOPORTE',        ln:'TIC',                   cargo:'1',  co:'1' },
+      { id:'2',   ced:'17341621',   fn:'JORGE',          ln:'BARBOSA VARGAS',         cargo:'1',  co:'1', email:'sistemas@licodistribuciones.com',          phone:'3223392856' },
+      { id:'125', ced:'13745876',   fn:'OSCAR',          ln:'PEREZ ACOSTA',           cargo:'2',  co:'1', email:'kam@licodistribuciones.com',               phone:'3102295152' },
+      { id:'126', ced:'14566777',   fn:'HAROLD',         ln:'ROLDAN',                 cargo:'18', co:'1', email:'consumo@licodistribuciones.com',           phone:'3168320496' },
+      { id:'127', ced:'1097400835', fn:'JACKELINE',      ln:'CUTA BERNAL',            cargo:'8',  co:'1', email:'recepcion@licodistribuciones.com',         phone:'3206777736' },
+      { id:'128', ced:'1094910114', fn:'DILSON',         ln:'OTALVARO ORTIZ',         cargo:'5',  co:'1', email:'talentohumano@licodistribuciones.com',     phone:'3206682609' },
+      { id:'129', ced:'1121706393', fn:'MARTIN',         ln:'PINEDA ALVAREZ',         cargo:'11', co:'1', phone:'3223974626' },
+      { id:'130', ced:'1123627688', fn:'JAIR',           ln:'GUARDO PALACIOS',        cargo:'12', co:'4', phone:'3183230542' },
+      { id:'131', ced:'18004466',   fn:'JIM',            ln:'ONEILL HENRY',           cargo:'11', co:'4', phone:'3108140166' },
+      { id:'132', ced:'18008467',   fn:'JHON',           ln:'ORELLANO ALTAMIRANO',    cargo:'12', co:'4', phone:'3152043508' },
+      { id:'133', ced:'18009045',   fn:'WELINTON',       ln:'CARDALES HERNANDEZ',     cargo:'12', co:'4', phone:'3187654070' },
+      { id:'134', ced:'40990369',   fn:'DORIS',          ln:'BLANCO DE LA ASUNCION',  cargo:'8',  co:'4', phone:'3127750925' },
+      { id:'135', ced:'1002331225', fn:'YEISON',         ln:'CRUZ PINEDA',            cargo:'12', co:'2', phone:'3123508432' },
+      { id:'136', ced:'1002397120', fn:'DAYANA',         ln:'MOLINA DIAGAMA',         cargo:'13', co:'2', phone:'3209793140' },
+      { id:'137', ced:'1007333113', fn:'ANGIE',          ln:'VARGAS MONTENEGRO',      cargo:'13', co:'2', email:'supermercadosboyaca@licodistribuciones.com', phone:'3102782630' },
+      { id:'138', ced:'1049630058', fn:'ANDRES',         ln:'GUEVARA CASTIBALANCO',   cargo:'16', co:'2', phone:'3177146690' },
+      { id:'139', ced:'1052313923', fn:'LADY',           ln:'ALFONSO PINZON',         cargo:'15', co:'2', phone:'3138181604' },
+      { id:'140', ced:'1052837676', fn:'DARLIN',         ln:'AGUILAR ROJAS',          cargo:'14', co:'2', phone:'3228859078' },
+      { id:'141', ced:'1057591382', fn:'MARIA ALEJANDRA',ln:'NONTOA RINCON',           cargo:'15', co:'2', phone:'3107964311' },
+      { id:'142', ced:'33369566',   fn:'YENNY',          ln:'ROJAS PEÑA',             cargo:'14', co:'2', phone:'3112233283' },
+      { id:'143', ced:'4251952',    fn:'JORGE',          ln:'SANABRIA GALLO',         cargo:'12', co:'2', phone:'3108803757' },
+      { id:'144', ced:'7176714',    fn:'JENRY',          ln:'FERRUCHO GARCIA',        cargo:'12', co:'2', phone:'3138917163' },
+      { id:'145', ced:'7177126',    fn:'JOHN',           ln:'TORRES SIZA',            cargo:'12', co:'2', phone:'3103336853' },
+      { id:'146', ced:'74333745',   fn:'ABDENAGO',       ln:'HERNANDEZ QUEMBA',       cargo:'12', co:'2', phone:'3115487541' },
+      { id:'147', ced:'79547934',   fn:'LUIS',           ln:'RUSSI GARZON',           cargo:'17', co:'2', email:'gerenciaboyaca@licodistribuciones.com', phone:'3003178380' },
+    ] as any[]).map((e: any) => {
+      const { firstName, lastName } = toName(e.fn, e.ln);
+      return {
+        id: e.id,
+        firstName,
+        lastName,
+        email: e.email ?? '',
+        phone: e.phone ?? '',
+        position: CARGOS[e.cargo] ?? 'Colaborador',
+        sede: SEDES[e.co] ?? 'Quindío',
+        area: AREA_POR_CARGO[e.cargo] ?? 'General',
+        status: 'ACTIVE' as const,
+        cedula: e.ced,
+      };
+    }),
   ];
 
   constructor(
@@ -337,14 +90,18 @@ export class UserService {
 
   getCurrentUser(): Observable<User> {
     if (!isPlatformBrowser(this.platformId)) return of(null as unknown as User);
-    const mock: User = {
-      id: '2',
-      firstName: 'Jorge',
-      lastName: 'Barbosa',
-      email: 'sistemas@licodistribuciones.com',
-      loginTime: new Date().toISOString()
-    } as User;
-    return of(mock);
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const username: string = payload.username ?? '';
+        const found = this.mockUsers.find(
+          u => `${u.firstName}.${u.lastName.split(' ')[0]}`.toLowerCase() === username
+        );
+        if (found) return of({ ...found, loginTime: new Date().toISOString() } as User);
+      } catch {}
+    }
+    return of({ id:'2', firstName:'Jorge', lastName:'Barbosa', email:'sistemas@licodistribuciones.com', loginTime: new Date().toISOString() } as User);
   }
 
   getUserById(id: string): Observable<User> {
