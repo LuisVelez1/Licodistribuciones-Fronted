@@ -20,6 +20,7 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'areas/:areaId/agents/edit/:id', loadComponent: () => import('../areas/area-agent-form/area-agent-form').then(m => m.AreaAgentFormComponent) },
 
       { path: 'requirements',             loadComponent: () => import('../requirements/requirements-list/requirements-list').then(m => m.RequirementListComponent) },
+      
       { path: 'requirements/create',      loadComponent: () => import('../requirements/create-type-requirement/create-type-requirement').then(m => m.CreateTypeRequirementComponent) },
 
       { path: 'reports/requirements',     loadComponent: () => import('../reports/reports-admin').then(m => m.ReportsAdminComponent) },
