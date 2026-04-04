@@ -7,7 +7,7 @@ import { User } from '../models/user.model';
 import { UserA } from '../models/user-admin.model';
 
 const CARGOS: Record<string, string> = {
-  '1': 'Gerente / Sistemas', '2': 'Key Account Manager',
+  '1': 'Coordinador / Sistemas', '2': 'Key Account Manager',
   '5': 'Coordinador Talento Humano', '8': 'Recepcionista / Aux. Administrativa',
   '11': 'Conductor', '12': 'Auxiliar de Bodega / Distribución',
   '13': 'Auxiliar Punto de Venta', '14': 'Cajera',

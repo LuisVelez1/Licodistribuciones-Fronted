@@ -69,7 +69,7 @@ export class FixedAssetsComponent implements OnInit {
   showEmployeeDropdown = false;
 
   private allEmployees = [
-    { id:'2',   name:'Jorge Barbosa',          position:'Gerente / Sistemas',           sede:'Quindío' },
+    { id:'2',   name:'Jorge Barbosa',          position:'Director  / Sistemas',           sede:'Quindío' },
     { id:'125', name:'Oscar Pérez Acosta',      position:'Key Account Manager',          sede:'Quindío' },
     { id:'126', name:'Harold Roldán',            position:'Director Comercial',           sede:'Quindío' },
     { id:'127', name:'Jackeline Cuta Bernal',    position:'Recepcionista',               sede:'Quindío' },
@@ -317,10 +317,12 @@ export class FixedAssetsComponent implements OnInit {
       asset.hasLicenseWindows ? `<tr><td>Licencia Windows</td><td>✅ Sí</td></tr>` : '',
       asset.hasLicenseOffice  ? `<tr><td>Licencia Office</td><td>✅ Sí</td></tr>` : '',
     ].filter(Boolean).join('');
-
-    const html = \`<!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8">
-<title>Acta de Entrega — \${asset.code}</title>
+    
+const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Acta de Entrega — ${asset.code}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -343,42 +345,56 @@ export class FixedAssetsComponent implements OnInit {
   .footer{text-align:center;font-size:10px;color:#aaa;margin-top:32px;border-top:1px solid #e0d8cc;padding-top:16px;}
   .badge{display:inline-block;background:#e8f5e9;color:#2e7d32;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;}
   @media print{body{background:#fff;padding:0;} .page{box-shadow:none;}}
-</style></head>
-<body><div class="page">
+</style>
+</head>
+
+<body>
+<div class="page">
+
   <div class="header">
     <div class="logo-txt">Lico Distribuciones S.A.S.</div>
     <h1>Acta de Entrega de Activo</h1>
-    <div class="acta-num">Código: <strong>\${asset.code}</strong> &nbsp;·&nbsp; Fecha: \${fecha}</div>
+    <div class="acta-num">
+      Código: <strong>${asset.code}</strong> · Fecha: ${fecha}
+    </div>
   </div>
 
   <div class="section-title">1. Datos del Activo</div>
   <table>
-    <tr><td>Código interno</td><td>\${asset.code}</td></tr>
-    <tr><td>Descripción</td><td>\${asset.name}</td></tr>
-    <tr><td>Categoría</td><td>\${asset.category}</td></tr>
-    <tr><td>Marca</td><td>\${asset.brand ?? 'N/A'}</td></tr>
-    <tr><td>Modelo</td><td>\${asset.model ?? 'N/A'}</td></tr>
-    <tr><td>Serial / Placa</td><td>\${asset.serial ?? 'N/A'}</td></tr>
-    <tr><td>Valor de adquisición</td><td>\${valor}</td></tr>
-    <tr><td>Fecha adquisición</td><td>\${asset.acquisitionDate}</td></tr>
-    \${asset.warrantyDate ? \`<tr><td>Garantía hasta</td><td>\${asset.warrantyDate}</td></tr>\` : ''}
-    <tr><td>Estado</td><td><span class="badge">\${asset.status}</span></td></tr>
+    <tr><td>Código interno</td><td>${asset.code}</td></tr>
+    <tr><td>Descripción</td><td>${asset.name}</td></tr>
+    <tr><td>Categoría</td><td>${asset.category}</td></tr>
+    <tr><td>Marca</td><td>${asset.brand ?? 'N/A'}</td></tr>
+    <tr><td>Modelo</td><td>${asset.model ?? 'N/A'}</td></tr>
+    <tr><td>Serial / Placa</td><td>${asset.serial ?? 'N/A'}</td></tr>
+    <tr><td>Valor de adquisición</td><td>${valor}</td></tr>
+    <tr><td>Fecha adquisición</td><td>${asset.acquisitionDate}</td></tr>
+    ${
+      asset.warrantyDate
+        ? '<tr><td>Garantía hasta</td><td>' + asset.warrantyDate + '</td></tr>'
+        : ''
+    }
+    <tr><td>Estado</td><td><span class="badge">${asset.status}</span></td></tr>
   </table>
 
-  \${specs ? \`<div class="section-title">2. Especificaciones Técnicas</div><table>\${specs}</table>\` : ''}
+  ${
+    specs
+      ? '<div class="section-title">2. Especificaciones Técnicas</div><table>' + specs + '</table>'
+      : ''
+  }
 
-  <div class="section-title">\${specs ? '3' : '2'}. Asignación</div>
+  <div class="section-title">${specs ? '3' : '2'}. Asignación</div>
   <table>
-    <tr><td>Responsable</td><td>\${asset.assignedTo ?? 'Sin asignar'}</td></tr>
-    <tr><td>Sede</td><td>\${asset.sede}</td></tr>
-    <tr><td>Área</td><td>\${asset.area}</td></tr>
-    <tr><td>Ubicación</td><td>\${asset.location}</td></tr>
+    <tr><td>Responsable</td><td>${asset.assignedTo ?? 'Sin asignar'}</td></tr>
+    <tr><td>Sede</td><td>${asset.sede}</td></tr>
+    <tr><td>Área</td><td>${asset.area}</td></tr>
+    <tr><td>Ubicación</td><td>${asset.location}</td></tr>
   </table>
 
-  <div class="section-title">\${specs ? '4' : '3'}. Observaciones</div>
-  <div class="obs">\${asset.description ?? 'Sin observaciones.'}</div>
+  <div class="section-title">${specs ? '4' : '3'}. Observaciones</div>
+  <div class="obs">${asset.description ?? 'Sin observaciones.'}</div>
 
-  <div class="section-title">\${specs ? '5' : '4'}. Firmas</div>
+  <div class="section-title">${specs ? '5' : '4'}. Firmas</div>
   <div class="signatures">
     <div class="sig">
       <div style="height:50px"></div>
@@ -386,12 +402,14 @@ export class FixedAssetsComponent implements OnInit {
       <div class="sig-name">Jorge Barbosa</div>
       <div class="sig-role">Entrega — Sistemas TI</div>
     </div>
+
     <div class="sig">
       <div style="height:50px"></div>
       <div class="sig-line"></div>
-      <div class="sig-name">\${asset.assignedTo ?? '________________________'}</div>
+      <div class="sig-name">${asset.assignedTo ?? '________________________'}</div>
       <div class="sig-role">Recibe — Responsable del activo</div>
     </div>
+
     <div class="sig">
       <div style="height:50px"></div>
       <div class="sig-line"></div>
@@ -400,14 +418,19 @@ export class FixedAssetsComponent implements OnInit {
     </div>
   </div>
 
-  <div class="footer">Lico Distribuciones S.A.S. · Sistema de Gestión Interna · \${new Date().getFullYear()}</div>
-</div></body></html>\`;
+  <div class="footer">
+    Lico Distribuciones S.A.S. · Sistema de Gestión Interna · ${new Date().getFullYear()}
+  </div>
+
+</div>
+</body>
+</html>`;
 
     const win = window.open('', '_blank');
     win?.document.write(html);
     win?.document.close();
     setTimeout(() => win?.print(), 600);
-  }
+}
 
   // ── Reportes activos ──────────────────────────
   reportType = 'categoria';
@@ -431,10 +454,16 @@ export class FixedAssetsComponent implements OnInit {
     return { labels: [], values: [], colors: [] };
   }
 
-  getSedeCss: string {
-    return sede.toLowerCase().replace(' ','-').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  }
-  get totalValue(): number {
-    return this.assets.reduce((s,a) => s + (a.acquisitionValue ?? 0), 0);
-  }
+    getSedeCss(sede: string): string {
+  return sede
+    .toLowerCase()
+    .replace(' ', '-')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    get totalValue(): number {
+    return this.filteredAssets.reduce((sum, a) => sum + (a.acquisitionValue || 0), 0);
 }
+  }
+    
