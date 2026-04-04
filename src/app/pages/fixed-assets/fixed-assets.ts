@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CountByStatusPipe } from './count-by-status.pipe';
+import { AssetsReportComponent } from './assets-report.component';
 
 export interface FixedAsset {
   id: string;
@@ -9,25 +10,42 @@ export interface FixedAsset {
   name: string;
   category: string;
   brand?: string;
+  model?: string;
   serial?: string;
   location: string;
   sede: string;
   area: string;
   assignedTo?: string;
+  assignedId?: string;
   status: 'activo' | 'en_mantenimiento' | 'dado_de_baja' | 'disponible';
   acquisitionDate: string;
   acquisitionValue?: number;
   description?: string;
+  // Especificaciones técnicas
+  processor?: string;
+  ram?: string;
+  ramType?: string;
+  storage?: string;
+  storageType?: string;
+  os?: string;
+  hasLicenseWindows?: boolean;
+  hasLicenseOffice?: boolean;
+  ip?: string;
+  mac?: string;
+  warrantyDate?: string;
+  // Acta
+  actaFirmada?: boolean;
+  actaDate?: string;
 }
 
 @Component({
   selector: 'app-fixed-assets',
   standalone: true,
-  imports: [CommonModule, FormsModule, CountByStatusPipe],
+  imports: [CommonModule, FormsModule, CountByStatusPipe, AssetsReportComponent],
   templateUrl: './fixed-assets.html',
   styleUrl: './fixed-assets.scss'
 })
-export class FixedAssetsComponent {
+export class FixedAssetsComponent implements OnInit {
   showForm = false;
   searchText = '';
   filterCategory = '';
@@ -43,6 +61,7 @@ export class FixedAssetsComponent {
   areas = ['Sistemas','Talento Humano','Administrativa','Logística','Ventas','Contabilidad','Cartera','Comercial','General'];
 
   newAsset: Partial<FixedAsset> & { acquisitionValueStr?: string } = {};
+  showReports = false;
 
   // Employee searcher
   employeeSearch = '';
@@ -282,7 +301,137 @@ export class FixedAssetsComponent {
     this.showEmployeeDropdown = false;
   }
 
-  getSedeCss(sede: string): string {
+  // ── Acta de entrega ──────────────────────────
+  generateActa(asset: FixedAsset) {
+    const fecha = asset.actaDate || new Date().toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'});
+    const valor = asset.acquisitionValue
+      ? new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(asset.acquisitionValue)
+      : 'N/A';
+
+    const specs = [
+      asset.processor  ? `<tr><td>Procesador</td><td>${asset.processor}</td></tr>` : '',
+      asset.ram        ? `<tr><td>Memoria RAM</td><td>${asset.ram} ${asset.ramType ?? ''}</td></tr>` : '',
+      asset.storage    ? `<tr><td>Almacenamiento</td><td>${asset.storage} ${asset.storageType ?? ''}</td></tr>` : '',
+      asset.ip         ? `<tr><td>Dirección IP</td><td>${asset.ip}</td></tr>` : '',
+      asset.mac        ? `<tr><td>MAC Address</td><td>${asset.mac}</td></tr>` : '',
+      asset.hasLicenseWindows ? `<tr><td>Licencia Windows</td><td>✅ Sí</td></tr>` : '',
+      asset.hasLicenseOffice  ? `<tr><td>Licencia Office</td><td>✅ Sí</td></tr>` : '',
+    ].filter(Boolean).join('');
+
+    const html = \`<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<title>Acta de Entrega — \${asset.code}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;color:#0A142D;background:#EDE4D9;padding:40px;}
+  .page{background:#fff;max-width:780px;margin:0 auto;padding:48px;border-radius:4px;box-shadow:0 4px 24px rgba(10,20,45,0.15);}
+  .header{text-align:center;border-bottom:3px solid #0A142D;padding-bottom:20px;margin-bottom:24px;}
+  .logo-txt{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:0.3em;color:#CC521B;text-transform:uppercase;}
+  h1{font-family:'Cormorant Garamond',serif;font-size:26px;color:#0A142D;margin:8px 0 4px;}
+  .acta-num{font-size:12px;color:#888;}
+  .section-title{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#CC521B;margin:20px 0 8px;border-bottom:1px solid #e0d8cc;padding-bottom:4px;}
+  table{width:100%;border-collapse:collapse;margin-bottom:8px;font-size:13px;}
+  td{padding:7px 10px;border-bottom:1px solid #f5f0ea;}
+  td:first-child{font-weight:600;color:#555;width:45%;}
+  .obs{background:#fdf9f5;border-radius:6px;padding:12px;font-size:13px;color:#555;min-height:60px;margin-top:8px;}
+  .signatures{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:48px;}
+  .sig{text-align:center;}
+  .sig-line{border-top:1px solid #0A142D;margin-bottom:6px;}
+  .sig-name{font-weight:600;font-size:13px;}
+  .sig-role{font-size:11px;color:#888;}
+  .footer{text-align:center;font-size:10px;color:#aaa;margin-top:32px;border-top:1px solid #e0d8cc;padding-top:16px;}
+  .badge{display:inline-block;background:#e8f5e9;color:#2e7d32;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+  @media print{body{background:#fff;padding:0;} .page{box-shadow:none;}}
+</style></head>
+<body><div class="page">
+  <div class="header">
+    <div class="logo-txt">Lico Distribuciones S.A.S.</div>
+    <h1>Acta de Entrega de Activo</h1>
+    <div class="acta-num">Código: <strong>\${asset.code}</strong> &nbsp;·&nbsp; Fecha: \${fecha}</div>
+  </div>
+
+  <div class="section-title">1. Datos del Activo</div>
+  <table>
+    <tr><td>Código interno</td><td>\${asset.code}</td></tr>
+    <tr><td>Descripción</td><td>\${asset.name}</td></tr>
+    <tr><td>Categoría</td><td>\${asset.category}</td></tr>
+    <tr><td>Marca</td><td>\${asset.brand ?? 'N/A'}</td></tr>
+    <tr><td>Modelo</td><td>\${asset.model ?? 'N/A'}</td></tr>
+    <tr><td>Serial / Placa</td><td>\${asset.serial ?? 'N/A'}</td></tr>
+    <tr><td>Valor de adquisición</td><td>\${valor}</td></tr>
+    <tr><td>Fecha adquisición</td><td>\${asset.acquisitionDate}</td></tr>
+    \${asset.warrantyDate ? \`<tr><td>Garantía hasta</td><td>\${asset.warrantyDate}</td></tr>\` : ''}
+    <tr><td>Estado</td><td><span class="badge">\${asset.status}</span></td></tr>
+  </table>
+
+  \${specs ? \`<div class="section-title">2. Especificaciones Técnicas</div><table>\${specs}</table>\` : ''}
+
+  <div class="section-title">\${specs ? '3' : '2'}. Asignación</div>
+  <table>
+    <tr><td>Responsable</td><td>\${asset.assignedTo ?? 'Sin asignar'}</td></tr>
+    <tr><td>Sede</td><td>\${asset.sede}</td></tr>
+    <tr><td>Área</td><td>\${asset.area}</td></tr>
+    <tr><td>Ubicación</td><td>\${asset.location}</td></tr>
+  </table>
+
+  <div class="section-title">\${specs ? '4' : '3'}. Observaciones</div>
+  <div class="obs">\${asset.description ?? 'Sin observaciones.'}</div>
+
+  <div class="section-title">\${specs ? '5' : '4'}. Firmas</div>
+  <div class="signatures">
+    <div class="sig">
+      <div style="height:50px"></div>
+      <div class="sig-line"></div>
+      <div class="sig-name">Jorge Barbosa</div>
+      <div class="sig-role">Entrega — Sistemas TI</div>
+    </div>
+    <div class="sig">
+      <div style="height:50px"></div>
+      <div class="sig-line"></div>
+      <div class="sig-name">\${asset.assignedTo ?? '________________________'}</div>
+      <div class="sig-role">Recibe — Responsable del activo</div>
+    </div>
+    <div class="sig">
+      <div style="height:50px"></div>
+      <div class="sig-line"></div>
+      <div class="sig-name">Dilson Otalvaro</div>
+      <div class="sig-role">Aval — Talento Humano</div>
+    </div>
+  </div>
+
+  <div class="footer">Lico Distribuciones S.A.S. · Sistema de Gestión Interna · \${new Date().getFullYear()}</div>
+</div></body></html>\`;
+
+    const win = window.open('', '_blank');
+    win?.document.write(html);
+    win?.document.close();
+    setTimeout(() => win?.print(), 600);
+  }
+
+  // ── Reportes activos ──────────────────────────
+  reportType = 'categoria';
+
+  toggleReports() { this.showReports = !this.showReports; }
+
+  reportData() {
+    if (this.reportType === 'categoria') {
+      const cats = [...new Set(this.assets.map(a => a.category))];
+      return { labels: cats, values: cats.map(c => this.assets.filter(a => a.category === c).length), colors: ['#0A142D','#CC521B','#90574D','#94B6EF','#CCBBA7','#4caf50','#ff9800','#9c27b0','#2196f3','#f44336'] };
+    }
+    if (this.reportType === 'sede') {
+      const sedes = ['Quindío','Boyacá','Chocó','San Andrés'];
+      return { labels: sedes, values: sedes.map(s => this.assets.filter(a => a.sede === s).length), colors: ['#CC521B','#1565c0','#2e7d32','#7b1fa2'] };
+    }
+    if (this.reportType === 'estado') {
+      const sts = ['activo','en_mantenimiento','dado_de_baja','disponible'];
+      const lbls = ['Activo','Mantenimiento','Dado de baja','Disponible'];
+      return { labels: lbls, values: sts.map(s => this.assets.filter(a => a.status === s).length), colors: ['#2e7d32','#e65100','#c62828','#1565c0'] };
+    }
+    return { labels: [], values: [], colors: [] };
+  }
+
+  getSedeCss: string {
     return sede.toLowerCase().replace(' ','-').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   }
   get totalValue(): number {
