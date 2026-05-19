@@ -25,9 +25,9 @@ export class AdminComponent {
       children: [
         { label: 'Ver todos los usuarios',  route: '/admin/users',                 icon: 'list' },
         { label: 'Crear usuario',           route: '/admin/users/create',          icon: 'person_add' },
-        { label: 'Cambiar correo',          route: '/admin/users/change-email',    icon: 'email' },
+        { label: 'Actualizar usuario',      route: '/admin/users/update',          icon: 'edit'},
         { label: 'Cambiar contraseña',      route: '/admin/users/change-password', icon: 'lock' },
-        { label: 'Desactivar usuario',      route: '/admin/users/deactivate',      icon: 'person_off' },
+        { label: 'Cambiar estado',          route: '/admin/users/change-status',      icon: 'person_off' },
       ]
     },
     {

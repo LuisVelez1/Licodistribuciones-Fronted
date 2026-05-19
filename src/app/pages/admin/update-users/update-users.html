@@ -1,0 +1,109 @@
+<div class="update-user-container">
+
+  <div class="header">
+    <h4>Actualizar usuario</h4>
+    <p>Actualización de usuarios administrativos</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <div class="form-grid">
+        
+        <div class="field search-container">
+          <label>Buscar usuario</label>
+
+          <input
+            type="text"
+            (input)="search($event.target.value)"
+            (focus)="showDropdown = true"
+            (blur)="hideDropdown()"
+            placeholder="Escribe el nombre..."
+          />
+
+          @if (showDropdown && filteredUsers.length > 0) {
+            <ul class="dropdown">
+              @for (user of filteredUsers; track user.id) {
+                <li (mousedown)="selectUser(user)">
+                  {{ user.fullName }}
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" formControlName="firstName">
+      </div>
+
+      <div class="field">
+        <label>Apellido</label>
+        <input type="text" formControlName="lastName">
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" formControlName="email">
+      </div>
+
+      <div class="field">
+        <label>Rol</label>
+        <select formControlName="role">
+          <option value="ADMIN">Super Admin</option>
+          <option value="MANAGER">Admin</option>
+          <option value="EMPLOYEE">User</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Teléfono</label>
+        <input type="text" formControlName="phone">
+      </div>
+
+      <div class="field">
+        <label>Cargo</label>
+        <input type="text" formControlName="position">
+      </div>
+
+      <div class="field">
+        <label>Sede</label>
+        <input type="text" formControlName="sede">
+      </div>
+
+      <div class="field">
+        <label>Área</label>
+        <select formControlName="areaId">
+          @for (area of areas; track area.id) {
+            <option [ngValue]="area.id">{{ area.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Fecha de nacimiento</label>
+        <input type="date" formControlName="birthDate">
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button type="button" class="cancel" routerLink="/admin/users">Cancelar</button>
+      <button type="submit" class="submit" [disabled]="form.invalid">
+        Actualizar usuario
+      </button>
+    </div>
+        @if (success) {
+    <div class="info-message">
+        {{ success }}
+    </div>
+    }
+
+    @if (error) {
+    <div class="error-message">
+        {{ error }}
+    </div>
+    }
+
+  </form>
+
+</div>

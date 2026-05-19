@@ -19,6 +19,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
           <h2>{{ user.firstName }} {{ user.lastName }}</h2>
           <p>{{ user.email }}</p>
           <span class="role">{{ user.position || 'Empleado' }}</span>
+          <p class="alert-message">SI VAS A MODIFICAR LOS NOMBRES O LOS APELLIDOS VUELVE A INICIAR SESION</p>
         </div>
 
         <mat-tab-group>
@@ -35,40 +36,44 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   `,
   styleUrls: ['./profile.scss']
 })
+
 export class ProfilePageComponent implements OnInit {
   user!: User;
 
   constructor(private userService: UserService, private snackBar: MatSnackBar) {}
 
   ngOnInit() {
-    this.userService.getCurrentUser().subscribe({
-      next: (data) => (this.user = data),
-      error: (err) => console.error('Error cargando perfil:', err),
-    });
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.id;
+
+      this.userService.getCurrentUser().subscribe({
+        next: (data) => (this.user = data),
+        error: (err) => console.error('Error cargando perfil:', err),
+      });
+    }
   }
 
   updateProfile(changes: Partial<User>) {
-    this.userService.updateUserProfile(this.user.id!, changes).subscribe({
+    this.userService.updateMyProfile(changes).subscribe({
       next: (updated) => {
         this.user = { ...this.user, ...updated };
-
-        this.snackBar.open('✅ Perfil actualizado con éxito', '', {
-          duration: 2500,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          panelClass: ['snackbar-success'],
-        });
+        this.notify('✅ Perfil actualizado con éxito', 'success');
       },
       error: (err) => {
         console.error('Error al actualizar perfil:', err);
-
-        this.snackBar.open('❌ No se pudo actualizar el perfil', '', {
-          duration: 3000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-          panelClass: ['snackbar-error'],
-        });
+        this.notify('❌ No se pudo actualizar el perfil', 'error');
       },
+    });
+  }
+
+  private notify(msg: string, type: string) {
+    this.snackBar.open(msg, '', {
+      duration: 2500,
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+      panelClass: type === 'success' ? ['snackbar-success'] : ['snackbar-error'],
     });
   }
 }

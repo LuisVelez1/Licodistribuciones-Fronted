@@ -31,9 +31,10 @@ export class LoginFacade {
           ? err.error 
           : err.error?.message;
 
-        this.errorMessage$.next(message || 'Usuario o contraseña incorrectos');
+        this.errorMessage$.next(message || 'Error al iniciar sesión, intenta nuevamente');
+        
       } else {
-        this.errorMessage$.next('Error al iniciar sesión, intenta nuevamente');
+        this.errorMessage$.next('Usuario o contraseña incorrectos');
       }
     }
     });

@@ -4,10 +4,11 @@
       <h2>📁 Documentos Corporativos</h2>
       <p class="subtitle">{{ filteredDocuments.length }} documento{{ filteredDocuments.length !== 1 ? 's' : '' }}</p>
     </div>
-    <button class="btn-upload" (click)="toggleUploadForm()">➕ Cargar documento</button>
+    <button class="btn-upload" (click)="toggleUploadForm()">
+      ➕ Cargar documento
+    </button>
   </div>
 
-  <!-- Formulario de carga -->
   @if (showUploadForm) {
     <div class="upload-form-card">
       <h3>📄 Cargar nuevo documento</h3>
@@ -31,16 +32,13 @@
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group">
+          <div class="form-group">
           <label>Área</label>
-          <select [(ngModel)]="newDoc.area" class="form-input">
-            <option value="">General</option>
-            <option value="RRHH">RRHH</option>
-            <option value="Sistemas">Sistemas</option>
-            <option value="Operaciones">Operaciones</option>
-            <option value="Ventas">Ventas</option>
-            <option value="Finanzas">Finanzas</option>
-            <option value="Jurídico">Jurídico</option>
+          <select [(ngModel)]="newDoc.areaId" class="form-input">
+            <option [value]="null">General</option>
+            @for (area of areas; track area.id) {
+              <option [value]="area.id">{{ area.name }}</option>
+            }
           </select>
         </div>
         <div class="form-group">
@@ -73,10 +71,13 @@
       </div>
       <div class="form-actions">
         <button class="btn-cancel" (click)="toggleUploadForm()">Cancelar</button>
-        <button class="btn-upload-doc" (click)="uploadDocument()" [disabled]="!newDoc.name || !newDoc.category || !newDoc.file">
-          Cargar documento
+        <button 
+          class="btn-upload-doc" 
+          (click)="uploadDocument()" 
+          [disabled]="!newDoc.name || !newDoc.category || !newDoc.file || !userLoaded">
+          {{ userLoaded ? 'Cargar documento' : 'Cargando...' }}
         </button>
-      </div>
+    </div>
     </div>
   }
 
@@ -118,7 +119,7 @@
         </div>
         <div class="doc-actions">
           <button class="btn-action preview" (click)="previewDocument(doc)" title="Previsualizar">
-            👁️ Ver
+            Ver
           </button>
           <button class="btn-action download" (click)="downloadDocument(doc)" title="Descargar">
             ⬇️ Descargar
@@ -129,41 +130,101 @@
   </div>
 </div>
 
-<!-- Modal previsualización -->
 @if (previewDoc) {
   <div class="preview-backdrop" (click)="closePreview()">
     <div class="preview-modal" (click)="$event.stopPropagation()">
       <div class="preview-header">
-        <div class="preview-title">
-          <span>{{ getFileIcon(previewDoc.fileName) }}</span>
-          <strong>{{ previewDoc.name }}</strong>
-        </div>
-        <div class="preview-header-actions">
-          <button class="btn-dl" (click)="downloadDocument(previewDoc)">⬇️ Descargar</button>
-          <button class="btn-close-modal" (click)="closePreview()">✕</button>
-        </div>
+      <div class="preview-title">
+        <span>{{ getFileIcon(previewDoc.fileName) }}</span>
+        <strong>{{ previewDoc.name }}</strong>
       </div>
-      <div class="preview-body">
-        @if (previewDoc.previewUrl) {
-          <iframe [src]="previewDoc.previewUrl" class="preview-frame"></iframe>
-        } @else {
-          <div class="preview-placeholder">
-            <div class="preview-icon">{{ getFileIcon(previewDoc.fileName) }}</div>
-            <h3>{{ previewDoc.name }}</h3>
-            @if (previewDoc.description) { <p>{{ previewDoc.description }}</p> }
-            <div class="preview-meta">
-              <span>📂 {{ previewDoc.category }}</span>
-              @if (previewDoc.area) { <span>🏢 {{ previewDoc.area }}</span> }
-              @if (previewDoc.version) { <span>🔖 {{ previewDoc.version }}</span> }
-              <span>📅 {{ previewDoc.uploadedAt }}</span>
-              <span>👤 {{ previewDoc.uploadedBy }}</span>
-            </div>
-            <button class="btn-dl-big" (click)="downloadDocument(previewDoc)">
-              ⬇️ Descargar {{ previewDoc.fileName }}
-            </button>
-          </div>
+      <div class="preview-header-actions">
+        @if (previewDoc.uploadedById === currentUserId) {
+          <button class="btn-edit" (click)="openEditMode()">✏️ Editar</button>
+          <button class="btn-delete" (click)="openDeleteConfirm(previewDoc)">🗑️ Eliminar</button>
         }
+        <button class="btn-dl" (click)="downloadDocument(previewDoc)">⬇️ Descargar</button>
+        <button class="btn-close-modal" (click)="closePreview()">✕</button>
       </div>
     </div>
+      <div class="preview-body">
+  @if (editMode) {
+    <div class="edit-form">
+      <div class="form-group">
+        <label>Título</label>
+        <input type="text" [(ngModel)]="editForm.title" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <select [(ngModel)]="editForm.category" class="form-input">
+          <option value="Políticas">Políticas</option>
+          <option value="Manuales">Manuales</option>
+          <option value="Formatos">Formatos</option>
+          <option value="Reglamentos">Reglamentos</option>
+          <option value="Actas">Actas</option>
+          <option value="Contratos">Contratos</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Área</label>
+        <select [(ngModel)]="editForm.areaId" class="form-input">
+          <option [value]="null">General</option>
+          @for (area of areas; track area.id) {
+            <option [value]="area.id">{{ area.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Versión</label>
+        <input type="text" [(ngModel)]="editForm.version" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea [(ngModel)]="editForm.description" class="form-textarea" rows="3"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="closeEditMode()">Cancelar</button>
+        <button class="btn-upload-doc" (click)="saveEdit()">💾 Guardar</button>
+      </div>
+    </div>
+  } @else {
+    <div class="preview-placeholder">
+      <div class="preview-icon">{{ getFileIcon(previewDoc.fileName) }}</div>
+      <h3>{{ previewDoc.name }}</h3>
+      @if (previewDoc.description) { <p>{{ previewDoc.description }}</p> }
+      <div class="preview-meta">
+        <span>📂 {{ previewDoc.category }}</span>
+        @if (previewDoc.area) { <span>🏢 {{ previewDoc.area }}</span> }
+        @if (previewDoc.version) { <span>🔖 {{ previewDoc.version }}</span> }
+        <span>📅 {{ previewDoc.uploadedAt }}</span>
+        <span>👤 {{ previewDoc.uploadedBy }}</span>
+        @if (previewDoc.fileSize) { <span>💾 {{ previewDoc.fileSize }}</span> }
+      </div>
+      <button class="btn-dl-big" (click)="downloadDocument(previewDoc)">
+        ⬇️ Descargar {{ previewDoc.fileName }}
+      </button>
+    </div>
+  }
+</div>
+    </div>
+
+    @if (showDeleteConfirm && docToDelete) {
+  <div class="confirm-backdrop" (click)="cancelDelete()">
+    <div class="confirm-modal" (click)="$event.stopPropagation()">
+      <span class="confirm-icon">🗑️</span>
+      <h4>Eliminar documento</h4>
+      <p>
+        ¿Estás seguro de que deseas eliminar
+        <strong>{{ docToDelete.name }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+      <div class="confirm-actions">
+        <button class="btn-confirm-cancel" (click)="cancelDelete()">Cancelar</button>
+        <button class="btn-confirm-delete" (click)="confirmDelete()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+}
   </div>
 }

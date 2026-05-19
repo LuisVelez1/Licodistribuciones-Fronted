@@ -2,11 +2,6 @@
 
   <div class="header">
     <h4>Áreas</h4>
-
-    <button class="btn-primary" routerLink="/admin/areas/create">
-      <mat-icon>add</mat-icon>
-      Crear área
-    </button>
   </div>
 
   @if (loading) {
@@ -24,7 +19,6 @@
           <th>ID</th>
           <th>Nombre</th>
           <th>Estado</th>
-          <th>Creación</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -43,11 +37,7 @@
                 {{ area.active ? 'Activa' : 'Inactiva' }}
               </span>
             </td>
-            <td>{{ area.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
             <td class="actions">
-              <button class="icon-btn agents" [routerLink]="['/admin/areas', area.id, 'agents']" matTooltip="Gestionar agentes">
-                <mat-icon>groups</mat-icon>
-              </button>
               <button class="icon-btn edit" matTooltip="Editar área" (click)="edit(area)">
                 <mat-icon>edit</mat-icon>
               </button>

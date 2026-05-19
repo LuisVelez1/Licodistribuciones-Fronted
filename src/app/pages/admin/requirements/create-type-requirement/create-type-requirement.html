@@ -1,0 +1,46 @@
+<div class="page-container">
+  <h2>📂 Tipos de Requerimiento</h2>
+
+  <!-- Formulario nuevo tipo -->
+  <div class="form-card">
+    <h3>Agregar tipo</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre *</label>
+        <input type="text" [(ngModel)]="newType.name"
+          placeholder="Ej: Cambio de equipo" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <input type="text" [(ngModel)]="newType.description"
+          placeholder="Descripción breve..." class="form-input" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-save" (click)="addType()"
+        [disabled]="!newType.name || saving">
+        {{ saving ? 'Guardando...' : 'Agregar tipo' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="types-list">
+    @if (types.length === 0) {
+      <div class="empty-state">
+        <span>📋</span>
+        <p>No hay tipos de requerimiento registrados.</p>
+      </div>
+    }
+    @for (t of types; track t.id) {
+      <div class="type-row">
+        <div class="type-info">
+          <span class="type-name">{{ t.name }}</span>
+          @if (t.description) {
+            <span class="type-desc">{{ t.description }}</span>
+          }
+        </div>
+        <button class="btn-delete" (click)="removeType(t.id)">✕</button>
+      </div>
+    }
+  </div>
+</div>

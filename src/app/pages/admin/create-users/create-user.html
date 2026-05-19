@@ -32,9 +32,9 @@
       <div class="field">
         <label>Rol</label>
         <select formControlName="role">
-          <option value="ADMIN">Admin</option>
-          <option value="MANAGER">Manager</option>
-          <option value="EMPLOYEE">Empleado</option>
+          <option value="ADMIN">Super Admin</option>
+          <option value="MANAGER">Admin</option>
+          <option value="EMPLOYEE">User</option>
         </select>
       </div>
 
@@ -55,12 +55,16 @@
 
       <div class="field">
         <label>Área</label>
-        <input type="text" formControlName="area">
+        <select formControlName="areaId">
+          @for (area of areas; track area.id) {
+            <option [value]="area.id">{{ area.name }}</option>
+          }
+        </select>
       </div>
 
       <div class="field">
         <label>Fecha de nacimiento</label>
-        <input type="date" formControlName="birthday">
+        <input type="date" formControlName="birthDate">
       </div>
 
     </div>

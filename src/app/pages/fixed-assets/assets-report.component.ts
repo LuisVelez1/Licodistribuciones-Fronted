@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, AfterViewInit, ViewChild, ElementRef, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FixedAsset } from './fixed-assets';
+import { FixedAssetResponse } from '../../core/models/fixed-asset.model';
 
 @Component({
   selector: 'app-assets-report',
@@ -115,7 +115,7 @@ import { FixedAsset } from './fixed-assets';
   `]
 })
 export class AssetsReportComponent implements OnChanges, AfterViewInit {
-  @Input() assets: FixedAsset[] = [];
+  @Input() assets: FixedAssetResponse[] = [];
   @ViewChild('donutCanvas') donutCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('barCanvas')   barCanvas!:   ElementRef<HTMLCanvasElement>;
 
@@ -136,20 +136,30 @@ export class AssetsReportComponent implements OnChanges, AfterViewInit {
   private getData() {
     if (this.chartView === 'categoria') {
       const keys = [...new Set(this.assets.map(a => a.category))];
-      return { labels: keys, values: keys.map(k => this.assets.filter(a => a.category === k).length), valueAmounts: keys.map(k => this.assets.filter(a=>a.category===k).reduce((s,a)=>s+(a.acquisitionValue??0),0)) };
+      return {
+        labels: keys,
+        values: keys.map(k => this.assets.filter(a => a.category === k).length),
+        valueAmounts: keys.map(k => this.assets.filter(a => a.category === k).reduce((s, a) => s + (a.acquisitionValue ?? 0), 0))
+      };
     }
-    if (this.chartView === 'sede') {
-      const keys = ['Quindío','Boyacá','Chocó','San Andrés'];
-      return { labels: keys, values: keys.map(k => this.assets.filter(a => a.sede === k).length), valueAmounts: keys.map(k => this.assets.filter(a=>a.sede===k).reduce((s,a)=>s+(a.acquisitionValue??0),0)) };
+    if (this.chartView === 'sede' || this.chartView === 'valor') {
+      const keys = [...new Set(this.assets.map(a => a.sede).filter(Boolean))];
+      return {
+        labels: keys,
+        values: keys.map(k => this.chartView === 'valor'
+          ? this.assets.filter(a => a.sede === k).reduce((s, a) => s + (a.acquisitionValue ?? 0), 0)
+          : this.assets.filter(a => a.sede === k).length
+        ),
+        valueAmounts: keys.map(k => this.assets.filter(a => a.sede === k).reduce((s, a) => s + (a.acquisitionValue ?? 0), 0))
+      };
     }
-    if (this.chartView === 'estado') {
-      const keys = ['activo','en_mantenimiento','dado_de_baja','disponible'];
-      const lbls = ['Activo','Mantenimiento','Dado de baja','Disponible'];
-      return { labels: lbls, values: keys.map(k => this.assets.filter(a => a.status === k).length), valueAmounts: keys.map(k => this.assets.filter(a=>a.status===k).reduce((s,a)=>s+(a.acquisitionValue??0),0)) };
-    }
-    // valor por sede
-    const keys = ['Quindío','Boyacá','Chocó','San Andrés'];
-    return { labels: keys, values: keys.map(k => this.assets.filter(a=>a.sede===k).reduce((s,a)=>s+(a.acquisitionValue??0),0)), valueAmounts: keys.map(k => this.assets.filter(a=>a.sede===k).reduce((s,a)=>s+(a.acquisitionValue??0),0)) };
+    const keys = ['activo', 'en_mantenimiento', 'dado_de_baja', 'disponible'];
+    const lbls = ['Activo', 'Mantenimiento', 'Dado de baja', 'Disponible'];
+    return {
+      labels: lbls,
+      values: keys.map(k => this.assets.filter(a => a.status === k).length),
+      valueAmounts: keys.map(k => this.assets.filter(a => a.status === k).reduce((s, a) => s + (a.acquisitionValue ?? 0), 0))
+    };
   }
 
   summaryRows() {
@@ -237,20 +247,25 @@ export class AssetsReportComponent implements OnChanges, AfterViewInit {
 
   downloadCSV() {
     const headers = ['Código','Categoría','Marca','Serial','Sede','Área','Asignado a','Estado','Valor','F.Adquisición'];
-    const rows = this.assets.map(a => [a.code,a.category,a.brand??'',a.serial??'',a.sede,a.area,a.assignedTo??'',a.status,a.acquisitionValue??0,a.acquisitionDate]);
-    const csv = [headers,...rows].map(r=>r.join(',')).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
-    a.download = `activos_fijos_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
+    const rows = this.assets.map(a => [
+      a.code, a.category, a.brand ?? '', a.serial ?? '',
+      a.sede, a.areaName ?? '', a.assignedToFullName ?? '',
+      a.status, a.acquisitionValue ?? 0, a.acquisitionDate
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const el = document.createElement('a');
+    el.href = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }));
+    el.download = `activos_fijos_${new Date().toISOString().split('T')[0]}.csv`;
+    el.click();
   }
 
   downloadPDF() {
-    const rows = this.assets.map(a => `
-      <tr><td>${a.code}</td><td>${a.category}</td><td>${a.brand??'—'}</td>
-      <td>${a.serial??'—'}</td><td>${a.sede}</td><td>${a.assignedTo??'—'}</td>
-      <td><span class="s-${a.status}">${a.status}</span></td>
-      <td>${this.formatCurrency(a.acquisitionValue)}</td></tr>`).join('');
+  const rows = this.assets.map(a => `
+    <tr><td>${a.code}</td><td>${a.category}</td><td>${a.brand ?? '—'}</td>
+    <td>${a.serial ?? '—'}</td><td>${a.sede}</td>
+    <td>${a.assignedToFullName ?? '—'}</td>
+    <td><span class="s-${a.status}">${a.status}</span></td>
+    <td>${this.formatCurrency(a.acquisitionValue)}</td></tr>`).join('');
     const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Reporte Activos Fijos</title>
     <style>body{font-family:'DM Sans',sans-serif;padding:32px;color:#0A142D;background:#EDE4D9;}
     h1{font-family:'Cormorant Garamond',serif;font-size:26px;margin-bottom:4px;}

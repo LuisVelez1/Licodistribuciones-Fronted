@@ -8,7 +8,6 @@
         </button>
       </div>
 
-      <!-- Formulario de carga de noticias/videos -->
       @if (showUploadForm) {
         <div class="upload-form-card">
           <h3>📰 Nueva Noticia o Video</h3>
@@ -81,21 +80,51 @@
             </div>
           }
 
+          @if (isUploading) {
+            <div class="progress-container" style="width: 100%; background-color: #e0e0e0; border-radius: 8px; margin-bottom: 15px; height: 12px; overflow: hidden;">
+              <div class="progress-bar" [style.width.%]="uploadProgress" style="background-color: #006c38; height: 100%; transition: width 0.3s ease;"></div>
+            </div>
+          }
+
           <div class="form-actions">
-            <button class="btn-cancel" (click)="toggleUploadForm()">Cancelar</button>
-            <button class="btn-publish" (click)="publishPost()" [disabled]="!newPost.title || !newPost.category || !newPost.description">
+            <button class="btn-cancel" (click)="toggleUploadForm()" [disabled]="isUploading">Cancelar</button>
+            
+            <button class="btn-publish"
+                  (click)="publishPost()"
+                  [disabled]="!newPost.title || !newPost.category || !newPost.description || isUploading">
+
+            @if (isUploading) {
+              Subiendo... {{ uploadProgress }}%
+            } @else if (editingPostId) {
+              Actualizar noticia
+            } @else {
               Publicar noticia
-            </button>
+            }
+
+          </button>
           </div>
         </div>
       }
 
       @for (post of newsPosts; track post.title; let i = $index) {
         <article class="news-card">
-          <div class="news-header">
-            <span class="news-badge">{{ post.category }}</span>
-            <span class="news-date">{{ post.date }}</span>
-          </div>
+         <div class="news-header">
+          <span class="news-badge">{{ post.category }}</span>
+
+          <span class="news-date">{{ post.date }}</span>
+
+          @if (canManagePost(post)) {
+            <div class="news-actions">
+              <button class="btn-edit" (click)="startEdit(post)">
+                ✏️ Editar
+              </button>
+
+              <<button class="btn-delete" (click)="openDeleteModal(post.id)">
+              🗑️ Eliminar
+            </button>
+            </div>
+          }
+        </div>
 
           <h3 class="news-post-title">{{ post.title }}</h3>
 
@@ -122,16 +151,17 @@
 
             @if (post.showComments) {
               <div class="comments-body">
-                @for (comment of post.comments; track comment.time) {
+                @for (comment of post.comments; track comment.createdAt) {
                   <div class="comment">
                     <div class="comment-avatar">{{ comment.author[0] }}</div>
                     <div class="comment-content">
                       <span class="comment-author">{{ comment.author }}</span>
-                      <p class="comment-text">{{ comment.text }}</p>
-                      <span class="comment-time">{{ comment.time }}</span>
+                      <p class="comment-text">{{ comment.comment }}</p>
+                      <span class="comment-time">{{ comment.createdAt | date:'short' }}</span>
                     </div>
                   </div>
                 }
+
 
                 @if (post.comments.length === 0) {
                   <p class="no-comments">Sé el primero en comentar.</p>
@@ -156,6 +186,24 @@
     </section>
   </main>
 
+  @if (showDeleteModal) {
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3>¿Eliminar noticia?</h3>
+      <p>Esta acción no se puede deshacer.</p>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeDeleteModal()">
+          Cancelar
+        </button>
+
+        <button class="btn-danger" (click)="confirmDelete()">
+          Sí, eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+}
   <aside class="home-right">
     <app-home-right></app-home-right>
   </aside>

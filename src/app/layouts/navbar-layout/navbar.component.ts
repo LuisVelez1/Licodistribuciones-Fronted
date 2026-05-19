@@ -31,14 +31,19 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.userService.getCurrentUser().subscribe({
-        next: (data) => {
-          this.user = { ...data, loginTime: new Date() };
-          this.sessionService.setLoginInfo(this.user);
-          this.role = this.sessionService.getRole();
-        }
-      });
-    }
+        this.userService.getCurrentUser().subscribe({
+          next: (data) => {
+            
+            this.user = { ...data, loginTime: new Date() };
+            
+            this.sessionService.setLoginInfo(this.user);
+            
+            this.role = this.sessionService.getRole();
+            
+            this.cdr.detectChanges();
+          }
+        });
+      }
   }
 
   profile() {

@@ -30,6 +30,7 @@ interface Birthday {
 export class HomeRightComponent implements OnInit {
   birthdays: Birthday[] = [];
   directoryPreview: UserA[] = [];
+  filteredBirthdays: Birthday[] = [];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -43,30 +44,27 @@ export class HomeRightComponent implements OnInit {
     this.loadDirectoryPreview();
   }
 
-  loadBirthdaysFromApi() {
-    this.birthdayService.getAllBirthdays().subscribe({
-      next: (data: BirthdayResponse[]) => {
-        this.birthdays = data.map(b => {
-          const [year, month, day] = b.birthdayDate.split('-').map(Number);
-          return {
-            name: `${b.firstName} ${b.lastName}`,
-            sede: b.sede,
-            date: new Date(year, month - 1, day)
-          };
-        }).sort((a, b) => {
-          if (a.date.getMonth() !== b.date.getMonth())
-            return a.date.getMonth() - b.date.getMonth();
-          return a.date.getDate() - b.date.getDate();
-        });
-      },
-      error: err => console.error('Error cargando cumpleaños:', err)
-    });
-  }
+    loadBirthdaysFromApi() {
+      this.birthdayService.getAllBirthdays().subscribe({
+        next: (data: any[]) => {
+          this.birthdays = data.map(b => {
+            const [year, month, day] = b.birthdayDate.split('-').map(Number);
+            
+            return {
+              name: `${b.firstName} ${b.lastName}`,
+              sede: b.sede,
+              date: new Date(year, month - 1, day) 
+            };
+          });
+          this.filteredBirthdays = [...this.birthdays]; 
+        },
+        error: err => console.error('Error:', err)
+      });
+    }
 
   loadDirectoryPreview() {
     this.userService.getAllAdminUsers().subscribe({
       next: (users: UserA[]) => {
-        // Mostrar 3 personas: priorizar las que tienen email corporativo
         const withEmail = users.filter(u => u.email && u.id !== '1');
         this.directoryPreview = withEmail.slice(0, 3);
       }
@@ -78,7 +76,6 @@ export class HomeRightComponent implements OnInit {
     const todayMonth = today.getMonth();
     const todayDay   = today.getDate();
 
-    // Calcular días que faltan para cada cumpleaños (circular por año)
     const withDistance = this.birthdays.map(b => {
       const bMonth = b.date.getMonth();
       const bDay   = b.date.getDate();

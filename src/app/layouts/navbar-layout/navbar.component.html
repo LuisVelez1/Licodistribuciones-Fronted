@@ -42,12 +42,15 @@
 <nav class="side-menu">
   <a routerLink="/home" routerLinkActive="active" (click)="closeMenu()">Inicio</a>
   <a routerLink="/documents" routerLinkActive="active" (click)="closeMenu()">Documentos</a>
-  <a routerLink="/academy" routerLinkActive="active" (click)="closeMenu()">Academia</a>
   <a routerLink="/requeriments" routerLinkActive="active" (click)="closeMenu()">Requerimientos</a>
+  @if (['SUPER_ADMIN'].includes(role!)) {
   <a routerLink="/fixed-assets" routerLinkActive="active" (click)="closeMenu()">Activos Fijos</a>
+  }
+  
   <a routerLink="/profile" routerLinkActive="active" (click)="closeMenu()">Perfil</a>
   <a routerLink="/meeting-room" routerLinkActive="active" (click)="closeMenu()">Sala de Juntas</a>
-  @if (['ADMIN'].includes(role!)) {
+  <a routerLink="/academy" routerLinkActive="active" (click)="closeMenu()">Academia</a>
+  @if (['SUPER_ADMIN'].includes(role!)) {
     <a
       routerLink="/admin"
       routerLinkActive="active"

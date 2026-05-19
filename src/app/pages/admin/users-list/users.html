@@ -2,12 +2,7 @@
 
   <div class="header">
     <h4>Administración de usuarios</h4>
-
-    <button class="create-btn" (click)="createUser()">
-      <mat-icon>person_add</mat-icon>
-      <span>Crear usuario</span>
-    </button>
-  </div>
+  </div> 
 
   @if (!loading) {
 
@@ -31,8 +26,7 @@
               <td class="truncate">{{ user.email }}</td>
               <td>{{ user.position }}</td>
               <td>{{ user.sede }}</td>
-              <td>{{ user.area }}</td>
-
+              <td>{{ user.areaName || 'Sin Área' }}</td>
             </tr>
           }
         </tbody>
@@ -57,12 +51,12 @@
           <div class="user-info">
             <span><b>Cargo:</b> {{ user.position }}</span>
             <span><b>Sede:</b> {{ user.sede }}</span>
-            <span><b>Área:</b> {{ user.area }}</span>
+            <span><b>Área:</b> {{ user.areaName || 'Sin Área' }}</span>
           </div>
         </div>
       }
 
-    </div>
+    </div>                                        
 
   } @else {
     <div class="loading">Cargando usuarios...</div>

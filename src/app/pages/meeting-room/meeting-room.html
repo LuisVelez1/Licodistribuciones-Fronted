@@ -27,7 +27,8 @@
         </div>
         <div class="form-group">
           <label>Fecha *</label>
-          <input type="date" [(ngModel)]="newReservation.date" [min]="minDate" class="form-input" />
+          <input type="date" [(ngModel)]="selectedDate" [min]="minDate"
+            (ngModelChange)="onDateChange()" class="date-picker" />
         </div>
       </div>
 
@@ -69,15 +70,15 @@
 
       <div class="form-actions">
         <button class="btn-cancel" (click)="toggleForm()">Cancelar</button>
-        <button class="btn-book" (click)="bookRoom()"
-          [disabled]="!newReservation.date || !newReservation.startTime || !newReservation.endTime || !newReservation.purpose">
-          Confirmar reserva
+        <button class="btn-book" (click)="bookRoom()" [disabled]="loading ||
+          !newReservation.date || !newReservation.startTime ||
+          !newReservation.endTime || !newReservation.purpose">
+          {{ loading ? 'Reservando...' : 'Confirmar reserva' }}
         </button>
       </div>
     </div>
   }
 
-  <!-- Calendario de disponibilidad por día -->
   <div class="calendar-section">
     <div class="calendar-nav">
       <label class="date-label">Ver disponibilidad del día:</label>
@@ -138,7 +139,9 @@
           </div>
           <div class="res-actions">
             <span class="status-badge {{ res.status }}">{{ res.status }}</span>
-            <button class="btn-cancel-res" (click)="cancelReservation(res.id)" title="Cancelar reserva">✖</button>
+            @if (canCancel(res)) {
+              <button class="btn-cancel-res" (click)="cancelReservation(res.id)" title="Cancelar reserva">✖</button>
+            }
           </div>
         </div>
       }

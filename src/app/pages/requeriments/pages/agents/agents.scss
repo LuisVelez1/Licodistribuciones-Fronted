@@ -1,233 +1,158 @@
 .agents-container {
-  background: #f9fafb;
-  padding: 2rem;
-  border-radius: 16px;
+  padding: 28px;
+  max-width: 1100px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease;
 }
 
-h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-}
-
-.agents-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-.agent-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 14px 40px rgba(0,0,0,0.08);
-  }
-}
-
+// ── Header ───────────────────────────────
 .agents-header {
-  margin-bottom: 2rem;
-}
+  margin-bottom: 28px;
 
-.btn-primary {
-  background: var(--color-primary);
-  color: #ffffff;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s ease;
+  h2 {
+    font-family: var(--font-title);
+    font-size: 26px;
+    color: var(--color-primary);
+    margin: 0 0 4px;
+    &::after { margin: 8px 0 0; }
+  }
 
-  &:hover {
-    background: var(--color-secundary);
-    transform: translateY(-1px);
+  .subtitle {
+    font-size: 13px;
+    color: var(--color-text-soft);
+    font-family: var(--font-body);
+    margin: 0;
   }
 }
 
+// ── Estados ──────────────────────────────
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 72px 20px;
 
-.avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--color-secundary);
-  color: #ffffff;
-  font-weight: 700;
+  span { font-size: 52px; display: block; margin-bottom: 12px; }
+  p { font-size: 15px; color: var(--color-text-soft); font-family: var(--font-body); margin: 0 0 6px; }
+  small { font-size: 13px; color: var(--color-beige); }
+}
+
+// ── Grid ─────────────────────────────────
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+// ── Card ─────────────────────────────────
+.agent-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+}
+
+// ── Card header ──────────────────────────
+.agent-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-}
+  gap: 14px;
+  margin-bottom: 18px;
 
-.main-info {
-  h3 {
-    margin: 0;
-    font-size: 1rem;
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-title);
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .agent-main {
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+      font-family: var(--font-title);
+      font-size: 16px;
+      color: var(--color-primary);
+      margin: 0 0 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      &::after { display: none; }
+    }
+
+    .position {
+      font-size: 12px;
+      color: var(--color-accent);
+      font-weight: 600;
+      font-family: var(--font-body);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+  }
+
+  .status-badge {
+    font-size: 11px;
     font-weight: 600;
-  }
+    font-family: var(--font-body);
+    border-radius: 20px;
+    padding: 3px 10px;
+    background: #ffebee;
+    color: #c62828;
+    flex-shrink: 0;
 
-  .area {
-    font-size: 0.8rem;
-    color: #6b7280;
+    &.active {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
   }
 }
 
+// ── Detalles ─────────────────────────────
 .agent-details {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  gap: 10px;
 
-  div {
+  .detail-item {
     display: flex;
     flex-direction: column;
-    font-size: 0.8rem;
-  }
+    gap: 2px;
 
-  label {
-    font-weight: 600;
-    color: #6b7280;
-  }
+    .detail-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-soft);
+      font-family: var(--font-body);
+    }
 
-  span {
-    color: #111827;
-  }
-}
+    .detail-value {
+      font-size: 13px;
+      color: var(--color-primary);
+      font-family: var(--font-body);
+      font-weight: 500;
 
-.agent-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.8rem;
-  color: #374151;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.status {
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  font-weight: 600;
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.status.active {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.drawer-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 50;
-}
-
-.drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 380px;
-  height: 100vh;
-  background: #ffffff;
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.12);
-  z-index: 60;
-  display: flex;
-  flex-direction: column;
-  animation: slideIn 0.25s ease;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-.drawer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.4rem;
-  border-bottom: 1px solid #e5e7eb;
-
-  h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-  }
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: #6b7280;
-}
-
-.drawer-form {
-  padding: 1.4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-
-  label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #374151;
-  }
-
-  input,
-  select {
-    padding: 0.55rem 0.7rem;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    font-size: 0.85rem;
-  }
-}
-
-.drawer-actions {
-  margin-top: auto;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-}
-
-.btn-secondary {
-  background: #f3f4f6;
-  border: none;
-  padding: 0.55rem 1rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-
-@media (max-width: 640px) {
-  .agents-container {
-    padding: 1.25rem;
-  }
-
-  .agent-details {
-    grid-template-columns: 1fr;
-  }
-
-  h2 {
-    font-size: 1.6rem;
+      &.email {
+        font-size: 12px;
+        color: var(--color-text-soft);
+        word-break: break-all;
+      }
+    }
   }
 }

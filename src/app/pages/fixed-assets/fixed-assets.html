@@ -2,8 +2,10 @@
 
   <!-- ── Tabs: Inventario / Reportes ── -->
   <div class="page-tabs">
-    <button class="tab-btn" [class.active]="!showReports" (click)="showReports=false">🏷️ Inventario</button>
-    <button class="tab-btn" [class.active]="showReports"  (click)="showReports=true">📊 Reportes</button>
+    <button class="tab-btn" [class.active]="!showReports" 
+  (click)="showReports=false; cdr.detectChanges()">🏷️ Inventario</button>
+<button class="tab-btn" [class.active]="showReports"  
+  (click)="showReports=true; cdr.detectChanges()">📊 Reportes</button>
   </div>
 
   <!-- ══════════ INVENTARIO ══════════ -->
@@ -67,7 +69,7 @@
           </div>
         </div>
 
-        <!-- Especificaciones técnicas (solo para equipos de cómputo) -->
+        <!-- Especificaciones técnicas -->
         @if (['Portátil','PC de Escritorio','PC Mini / All-in-One'].includes(newAsset.category ?? '')) {
           <div class="form-section-label">⚙️ Especificaciones técnicas</div>
           <div class="form-row">
@@ -169,12 +171,13 @@
           </div>
           <div class="form-group">
             <label>Área</label>
-            <select [(ngModel)]="newAsset.area" class="form-input">
-              <option value="">Seleccionar...</option>
-              @for (a of areas; track a) { <option [value]="a">{{ a }}</option> }
+            <select [(ngModel)]="newAsset.areaId" class="form-input">
+              <option [value]="null">Seleccionar...</option>
+              @for (a of areaList; track a.id) { <option [value]="a.id">{{ a.name }}</option> }
             </select>
           </div>
         </div>
+
         <div class="form-row">
           <div class="form-group employee-search-group">
             <label>Asignado a</label>
@@ -183,7 +186,7 @@
                 (input)="searchEmployee($any($event.target).value)"
                 placeholder="Buscar empleado por nombre o cargo..."
                 class="form-input" autocomplete="off" />
-              @if (newAsset.assignedTo) {
+              @if (employeeSearch) {
                 <button class="clear-emp" (click)="clearEmployee()" type="button">✕</button>
               }
               @if (showEmployeeDropdown) {
@@ -203,7 +206,7 @@
           </div>
           <div class="form-group">
             <label>Ubicación física</label>
-            <input type="text" [(ngModel)]="newAsset.location" placeholder="Ej: Oficina Piso 2 — Quindío" class="form-input" />
+            <input type="text" [(ngModel)]="newAsset.location" placeholder="Ej: Oficina Piso 2 — Armenia" class="form-input" />
           </div>
         </div>
 
@@ -279,13 +282,13 @@
           <thead>
             <tr>
               <th>Código</th><th>Activo</th><th>Especificaciones</th>
-              <th>Serial</th><th>Sede</th><th>Asignado a</th>
+              <th>Serial</th><th>Sede</th><th>Área</th><th>Asignado a</th>
               <th>F. Adquisición</th><th>Valor</th><th>Estado</th><th>Acta</th>
             </tr>
           </thead>
           <tbody>
             @for (asset of filteredAssets; track asset.id) {
-              <tr>
+              <tr (click)="openPreview(asset)" style="cursor:pointer">
                 <td><span class="asset-code">{{ asset.code }}</span></td>
                 <td>
                   <div class="asset-name-cell">
@@ -299,20 +302,19 @@
                 <td>
                   <div class="specs-cell">
                     @if (asset.processor) { <div class="spec-line">🔧 {{ asset.processor }}</div> }
-                    @if (asset.ram)        { <div class="spec-line">💾 {{ asset.ram }} {{ asset.ramType }}</div> }
-                    @if (asset.storage)    { <div class="spec-line">💿 {{ asset.storage }} {{ asset.storageType }}</div> }
+                    @if (asset.ram)        { <div class="spec-line">💾 {{ asset.ram }}</div> }
+                    @if (asset.storage)    { <div class="spec-line">💿 {{ asset.storage }}</div> }
                   </div>
                 </td>
                 <td><code class="serial">{{ asset.serial || '—' }}</code></td>
                 <td><span [class]="'sede-badge ' + getSedeCss(asset.sede)">{{ asset.sede }}</span></td>
-                <td>{{ asset.assignedTo || '—' }}</td>
+                <td>{{ asset.areaName || '—' }}</td>
+                <td>{{ asset.assignedToFullName || '—' }}</td>
                 <td>{{ asset.acquisitionDate | date:'dd/MM/yyyy' }}</td>
                 <td class="value-cell">{{ formatCurrency(asset.acquisitionValue) }}</td>
                 <td><span [class]="'status-badge ' + asset.status">{{ getStatusLabel(asset.status) }}</span></td>
                 <td>
-                  <button class="btn-acta" (click)="generateActa(asset)" title="Generar acta de entrega">
-                    📄 Acta
-                  </button>
+                  <button class="btn-acta" (click)="generateActa(asset)" title="Generar acta de entrega">📄 Acta</button>
                 </td>
               </tr>
             }
@@ -322,8 +324,281 @@
     </div>
   }
 
-  <!-- ══════════ REPORTES ══════════ -->
   @if (showReports) {
     <app-assets-report [assets]="assets"></app-assets-report>
   }
+
+  @if (previewAsset) {
+  <div class="preview-backdrop" (click)="closePreview()">
+    <div class="preview-modal" (click)="$event.stopPropagation()">
+
+      <div class="preview-header">
+        <div class="preview-title">
+          <span>{{ getCategoryIcon(previewAsset.category) }}</span>
+          <strong>{{ previewAsset.brand }} {{ previewAsset.name }}</strong>
+        </div>
+        <div class="preview-header-actions">
+          @if (isAdmin) {
+            <button class="btn-edit" (click)="openEditMode()">✏️ Editar</button>
+            <button class="btn-delete" (click)="openDeleteConfirm(previewAsset)">🗑️ Eliminar</button>
+          }
+          <button class="btn-acta" (click)="generateActa(previewAsset)">📄 Acta</button>
+          <button class="btn-close-modal" (click)="closePreview()">✕</button>
+        </div>
+      </div>
+
+      
+
+<div class="preview-body">
+  @if (editMode) {
+    <div class="edit-form">
+
+      <div class="form-section-label">Datos básicos</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre / Descripción *</label>
+          <input type="text" [(ngModel)]="editForm.name" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Categoría *</label>
+          <select [(ngModel)]="editForm.category" class="form-input">
+            <option value="">Seleccionar...</option>
+            @for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Marca</label>
+          <input type="text" [(ngModel)]="editForm.brand" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Modelo</label>
+          <input type="text" [(ngModel)]="editForm.model" class="form-input" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Serial / Placa</label>
+          <input type="text" [(ngModel)]="editForm.serial" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <select [(ngModel)]="editForm.status" class="form-input">
+            <option value="activo">Activo</option>
+            <option value="disponible">Disponible</option>
+            <option value="en_mantenimiento">En mantenimiento</option>
+            <option value="dado_de_baja">Dado de baja</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Especificaciones técnicas (solo equipos de cómputo) -->
+      @if (['Portátil','PC de Escritorio','PC Mini / All-in-One'].includes(editForm.category ?? '')) {
+        <div class="form-section-label">⚙️ Especificaciones técnicas</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Procesador</label>
+            <select [(ngModel)]="editForm.processor" class="form-input">
+              <option value="">Seleccionar...</option>
+              <option>CORE I3 10TH GEN</option><option>CORE I3 11TH GEN</option>
+              <option>CORE I3 12TH GEN</option><option>CORE I3 13TH GEN</option>
+              <option>CORE I5 10TH GEN</option><option>CORE I5 11TH GEN</option>
+              <option>CORE I5 12TH GEN</option><option>CORE I5 13TH GEN</option>
+              <option>CORE I7 10TH GEN</option><option>CORE I7 12TH GEN</option>
+              <option>CORE I7 13TH GEN</option>
+              <option>AMD RYZEN 3 7520U</option><option>AMD RYZEN 5 7520U</option>
+              <option>AMD RYZEN 7 7730U</option>
+              <option>INTEL CELERON J4025</option><option>INTEL PENTIUM</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Memoria RAM</label>
+            <div class="input-pair">
+              <select [(ngModel)]="editForm.ram" class="form-input">
+                <option value="">GB</option>
+                <option value="4">4 GB</option><option value="8">8 GB</option>
+                <option value="12">12 GB</option><option value="16">16 GB</option>
+                <option value="32">32 GB</option>
+              </select>
+              <select [(ngModel)]="editForm.ramType" class="form-input">
+                <option value="">Tipo</option>
+                <option value="DDR3">DDR3</option>
+                <option value="DDR4">DDR4</option>
+                <option value="DDR5">DDR5</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Almacenamiento</label>
+            <div class="input-pair">
+              <select [(ngModel)]="editForm.storage" class="form-input">
+                <option value="">GB/TB</option>
+                <option value="128">128 GB</option><option value="256">256 GB</option>
+                <option value="512">512 GB</option><option value="1024">1 TB</option>
+                <option value="2048">2 TB</option>
+              </select>
+              <select [(ngModel)]="editForm.storageType" class="form-input">
+                <option value="">Tipo</option>
+                <option value="SSD">SSD</option>
+                <option value="HDD">HDD</option>
+                <option value="NVMe">NVMe</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Sistema Operativo</label>
+            <select [(ngModel)]="editForm.os" class="form-input">
+              <option value="">Seleccionar...</option>
+              <option value="Windows 10 Pro">Windows 10 Pro</option>
+              <option value="Windows 11 Pro">Windows 11 Pro</option>
+              <option value="Windows 11 Home">Windows 11 Home</option>
+              <option value="Sin OS">Sin sistema operativo</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Dirección IP</label>
+            <input type="text" [(ngModel)]="editForm.ip" placeholder="Ej: 192.168.1.100" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>MAC Address</label>
+            <input type="text" [(ngModel)]="editForm.mac" placeholder="Ej: AA:BB:CC:DD:EE:FF" class="form-input" />
+          </div>
+        </div>
+      }
+
+      <div class="form-section-label">📍 Asignación</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Sede *</label>
+          <select [(ngModel)]="editForm.sede" class="form-input">
+            <option value="">Seleccionar...</option>
+            @for (s of sedes; track s) { <option [value]="s">{{ s }}</option> }
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Área</label>
+          <select [(ngModel)]="editForm.areaId" class="form-input">
+            <option [value]="null">Sin área</option>
+            @for (a of areaList; track a.id) { <option [value]="a.id">{{ a.name }}</option> }
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group employee-search-group">
+          <label>Asignado a</label>
+          <div class="employee-search-wrap">
+            <input type="text" [value]="employeeSearch"
+              (input)="searchEmployee($any($event.target).value)"
+              placeholder="Buscar empleado por nombre o cargo..."
+              class="form-input" autocomplete="off" />
+            @if (employeeSearch) {
+              <button class="clear-emp" (click)="clearEmployee()" type="button">✕</button>
+            }
+            @if (showEmployeeDropdown) {
+              <div class="employee-dropdown">
+                @for (emp of employeeResults; track emp.id) {
+                  <div class="employee-option" (click)="selectEmployee(emp)">
+                    <div class="emp-avatar">{{ emp.name[0] }}</div>
+                    <div class="emp-data">
+                      <div class="emp-name">{{ emp.name }}</div>
+                      <div class="emp-role">{{ emp.position }} · {{ emp.sede }}</div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Ubicación física</label>
+          <input type="text" [(ngModel)]="editForm.location" placeholder="Ej: Oficina Piso 2 — Armenia" class="form-input" />
+        </div>
+      </div>
+
+      <div class="form-section-label">💰 Adquisición</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha de compra</label>
+          <input type="date" [(ngModel)]="editForm.acquisitionDate" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>Valor de compra (COP)</label>
+          <input type="text" [(ngModel)]="editForm.acquisitionValueStr" placeholder="Ej: 3500000" class="form-input" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Garantía hasta</label>
+          <input type="date" [(ngModel)]="editForm.warrantyDate" class="form-input" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <input type="text" [(ngModel)]="editForm.description" placeholder="Notas adicionales" class="form-input" />
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="closeEditMode()">Cancelar</button>
+        <button class="btn-save" (click)="saveEdit()"
+          [disabled]="!editForm.name || !editForm.category || !editForm.sede">
+          💾 Guardar cambios
+        </button>
+      </div>
+
+    </div>
+
+  } @else {
+
+    <div class="preview-placeholder">
+      <div class="preview-icon">{{ getCategoryIcon(previewAsset.category) }}</div>
+      <div class="preview-meta">
+        <span>🏷️ {{ previewAsset.code || 'Sin código' }}</span>
+        <span>📂 {{ previewAsset.category }}</span>
+        <span>🏢 {{ previewAsset.areaName || '—' }}</span>
+        <span>📍 {{ previewAsset.sede }}</span>
+        <span>📌 {{ previewAsset.location || '—' }}</span>
+        <span>👤 {{ previewAsset.assignedToFullName || 'Sin asignar' }}</span>
+        <span>💰 {{ formatCurrency(previewAsset.acquisitionValue) }}</span>
+        @if (previewAsset.processor) { <span>🔧 {{ previewAsset.processor }}</span> }
+        @if (previewAsset.ram)       { <span>💾 {{ previewAsset.ram }}</span> }
+        @if (previewAsset.storage)   { <span>💿 {{ previewAsset.storage }}</span> }
+        @if (previewAsset.os)        { <span>🖥️ {{ previewAsset.os }}</span> }
+        @if (previewAsset.ip)        { <span>🌐 {{ previewAsset.ip }}</span> }
+        @if (previewAsset.warrantyDate) {
+          <span>🛡️ Garantía: {{ previewAsset.warrantyDate | date:'dd/MM/yyyy' }}</span>
+        }
+        <span [class]="'status-badge ' + previewAsset.status">
+          {{ getStatusLabel(previewAsset.status) }}
+        </span>
+      </div>
+    </div>
+
+  }
+</div>
+    </div>
+  </div>
+}
+
+@if (showDeleteConfirm && assetToDelete) {
+  <div class="confirm-backdrop" (click)="cancelDelete()">
+    <div class="confirm-modal" (click)="$event.stopPropagation()">
+      <span class="confirm-icon">🗑️</span>
+      <h4>Eliminar activo</h4>
+      <p>
+        ¿Estás seguro de que deseas eliminar
+        <strong>{{ assetToDelete.brand }} {{ assetToDelete.name }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+      <div class="confirm-actions">
+        <button class="btn-confirm-cancel" (click)="cancelDelete()">Cancelar</button>
+        <button class="btn-confirm-delete" (click)="confirmDelete()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+}
 </div>

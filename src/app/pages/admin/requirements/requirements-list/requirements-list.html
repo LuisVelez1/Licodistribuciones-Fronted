@@ -1,109 +1,205 @@
 <div class="requirements-container">
 
-  <div class="header">
-    <h4>Administración de requerimientos</h4>
-
+  <div class="req-header">
+    <div>
+      <h4>Administración de requerimientos</h4>
+      <span class="subtitle">{{ filtered.length }} registro{{ filtered.length !== 1 ? 's' : '' }}</span>
+    </div>
     <button class="create-btn" routerLink="/admin/requirements/create">
-      <mat-icon>add</mat-icon>
-      <span>Nuevo tipo de requerimiento</span>
+      ➕ Nuevo tipo
     </button>
   </div>
-  
-  <form class="filters" [formGroup]="filtersForm">
-    <select formControlName="area">
-    <option value="">Área</option>
 
-    @for (area of areas; track area.id) {
-      <option [value]="area.id">
-        {{ area.name }}
-      </option>
-    }
+  <form class="filters" [formGroup]="filtersForm">
+    <select formControlName="area" class="filter-select">
+      <option value="">Todas las áreas</option>
+      @for (area of areas; track area.id) {
+        <option [value]="area.id">{{ area.name }}</option>
+      }
     </select>
 
-
-    <select formControlName="status">
-      <option value="">Estado</option>
+    <select formControlName="status" class="filter-select">
+      <option value="">Todos los estados</option>
       <option value="PENDING">Pendiente</option>
       <option value="IN_PROGRESS">En progreso</option>
       <option value="COMPLETED">Completado</option>
       <option value="REJECTED">Rechazado</option>
     </select>
 
-    <select formControlName="priority">
-      <option value="">Prioridad</option>
-      <option value="LOW">Baja</option>
-      <option value="MEDIUM">Media</option>
-      <option value="HIGH">Alta</option>
-      <option value="CRITICAL">Crítica</option>
+    <select formControlName="priority" class="filter-select">
+      <option value="">Todas las prioridades</option>
+      <option value="BAJA">Baja</option>
+      <option value="MEDIA">Media</option>
+      <option value="ALTA">Alta</option>
+      <option value="CRITICA">Crítica</option>
     </select>
 
     <button type="button" class="clear-btn" (click)="clearFilters()">
-      Recargar
+      🔄 Limpiar
     </button>
   </form>
 
-  @if (!loading) {
+  @if (loading) {
+    <div class="loading">⏳ Cargando requerimientos...</div>
+  } @else {
 
+    <!-- Desktop -->
     <div class="table-container desktop-table">
       <table>
         <thead>
           <tr>
-            <th>ID</th>
+            <th>#</th>
             <th>Título</th>
             <th>Área</th>
+            <th>Tipo</th>
             <th>Estado</th>
             <th>Prioridad</th>
-            <th>Creado</th>
+            <th>Solicitante</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
           </tr>
         </thead>
-
         <tbody>
-          @for (req of requirements; track req.id) {
+          @for (req of filtered; track req.id) {
             <tr>
-              <td>#{{ req.id }}</td>
+              <td class="id-cell">#{{ req.id }}</td>
               <td class="truncate">{{ req.title }}</td>
               <td>{{ req.areaName }}</td>
+              <td>{{ req.typeName }}</td>
               <td>
-                <span class="badge" [ngClass]="req.status.toLowerCase()">
+                <span class="badge {{ req.status }}">
                   {{ translateStatus(req.status) }}
                 </span>
               </td>
               <td>
-                <span class="priority" [ngClass]="req.priority.toLowerCase()">
+                <span class="prio {{ req.priority }}">
                   {{ translatePriority(req.priority) }}
                 </span>
               </td>
-              <td>{{ req.createdAt | date }}</td>
+              <td>{{ req.createdByName }}</td>
+              <td>{{ req.createdAt | date:'dd/MM/yyyy' }}</td>
+              <td class="actions-cell">
+                <button class="btn-edit-row" (click)="openEdit(req)" title="Editar">✏️</button>
+                <button class="btn-delete-row" (click)="confirmDelete(req)" title="Eliminar">🗑️</button>
+              </td>
             </tr>
           }
         </tbody>
       </table>
 
-      @if (requirements.length === 0) {
+      @if (filtered.length === 0) {
         <div class="empty">No hay requerimientos registrados</div>
       }
     </div>
 
+    <!-- Mobile -->
     <div class="mobile-list">
-      @for (req of requirements; track req.id) {
+      @for (req of filtered; track req.id) {
         <div class="requirement-card">
-
           <div class="req-main">
-            <div class="title">{{ req.title }}</div>
-            <div class="meta">#{{ req.id }} · {{ req.areaName }}</div>
+            <div class="req-title">{{ req.title }}</div>
+            <div class="req-meta">#{{ req.id }} · {{ req.areaName }}</div>
           </div>
-
           <div class="req-info">
             <span><b>Estado:</b> {{ translateStatus(req.status) }}</span>
             <span><b>Prioridad:</b> {{ translatePriority(req.priority) }}</span>
-            <span><b>Creado:</b> {{ req.createdAt | date }}</span>
+            <span><b>Tipo:</b> {{ req.typeName }}</span>
+            <span><b>Fecha:</b> {{ req.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="mobile-actions">
+            <button class="btn-edit-row" (click)="openEdit(req)">✏️ Editar</button>
+            <button class="btn-delete-row" (click)="confirmDelete(req)">🗑️ Eliminar</button>
           </div>
         </div>
       }
     </div>
 
-  } @else {
-    <div class="loading">Cargando requerimientos...</div>
   }
-
 </div>
+
+<!-- Drawer edición -->
+@if (drawerOpen) {
+  <div class="drawer-backdrop" (click)="closeDrawer()"></div>
+  <aside class="drawer">
+    <header class="drawer-header">
+      <h3>✏️ Editar requerimiento <span class="req-id-badge">#{{ editingReq?.id }}</span></h3>
+      <button class="close-btn" (click)="closeDrawer()">✕</button>
+    </header>
+
+    <div class="drawer-body">
+      <div class="form-group">
+        <label>Título</label>
+        <input type="text" [(ngModel)]="editForm.title" class="form-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea [(ngModel)]="editForm.description" class="form-input" rows="3"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Área</label>
+          <select [(ngModel)]="editForm.areaId" class="form-input">
+            @for (area of areas; track area.id) {
+              <option [value]="area.id">{{ area.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo</label>
+          <select [(ngModel)]="editForm.typeId" class="form-input">
+            @for (type of types; track type.id) {
+              <option [value]="type.id">{{ type.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Estado</label>
+          <select [(ngModel)]="editForm.status" class="form-input">
+            <option value="PENDING">Pendiente</option>
+            <option value="IN_PROGRESS">En progreso</option>
+            <option value="COMPLETED">Completado</option>
+            <option value="REJECTED">Rechazado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Prioridad</label>
+          <select [(ngModel)]="editForm.priority" class="form-input">
+            <option value="BAJA">🟢 Baja</option>
+            <option value="MEDIA">🟡 Media</option>
+            <option value="ALTA">🟠 Alta</option>
+            <option value="CRITICA">🔴 Crítica</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <footer class="drawer-footer">
+      <button class="btn-cancel-drawer" (click)="closeDrawer()">Cancelar</button>
+      <button class="btn-save" (click)="saveEdit()" [disabled]="saving">
+        {{ saving ? 'Guardando...' : '💾 Guardar' }}
+      </button>
+    </footer>
+  </aside>
+}
+
+<!-- Modal confirmar eliminación -->
+@if (reqToDelete) {
+  <div class="confirm-backdrop" (click)="cancelDelete()">
+    <div class="confirm-modal" (click)="$event.stopPropagation()">
+      <span class="confirm-icon">🗑️</span>
+      <h4>¿Eliminar requerimiento?</h4>
+      <p>Estás a punto de eliminar <strong>{{ reqToDelete.title }}</strong>. Esta acción no se puede deshacer.</p>
+      <div class="confirm-actions">
+        <button class="btn-confirm-cancel" (click)="cancelDelete()">Cancelar</button>
+        <button class="btn-confirm-delete" (click)="executeDelete()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+}

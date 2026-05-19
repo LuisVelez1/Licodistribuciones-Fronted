@@ -11,7 +11,7 @@ import { API_ENDPOINTS } from '../constants/api.constants';
 @Injectable({ providedIn: 'root' })
 export class AreaService {
 
-  private readonly API = `${API_ENDPOINTS.requirements}/areas`;
+  private readonly API = `${API_ENDPOINTS.areas}`;
 
 
   constructor(private http: HttpClient) {}

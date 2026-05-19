@@ -4,14 +4,10 @@ import { authGuard } from './guards/auth.guard';
 import { reverseAuthGuard } from './guards/reverse.guard';
 
 export const routes: Routes = [
-
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-
   {
     path: 'auth',
-    loadChildren: () => import('./layouts/auth-layout/auth.routes')
-      .then(m => m.AUTH_ROUTES),
-      canActivate: [reverseAuthGuard]
+    loadChildren: () => import('./layouts/auth-layout/auth.routes').then(m => m.AUTH_ROUTES),
+    canActivate: [reverseAuthGuard]
   },
 
   {
@@ -19,6 +15,7 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home',        loadComponent: () => import('./pages/home/home').then(m => m.HomeComponent) },
       { path: 'profile',     loadComponent: () => import('./pages/profile/profile').then(m => m.ProfilePageComponent) },
       { path: 'academy',     loadChildren: () => import('./pages/academy/routes/academy.routes').then(m => m.ACADEMY_ROUTES) },

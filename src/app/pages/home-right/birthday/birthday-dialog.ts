@@ -297,12 +297,18 @@ export class BirthdayListDialogComponent {
   }
 
   filterBirthdays() {
-    if (this.selectedMonth === null) {
+    if (this.selectedMonth === null || this.selectedMonth === undefined) {
       this.filteredBirthdays = [...this.data.birthdays];
     } else {
-      this.filteredBirthdays = this.data.birthdays.filter(
-        b => b.date.getMonth() === this.selectedMonth
-      );
+      const targetMonth = Number(this.selectedMonth);
+      
+      this.filteredBirthdays = this.data.birthdays.filter(b => {
+        const dateObj = new Date(b.date); 
+        
+        const fixedDate = new Date(dateObj.getTime() + dateObj.getTimezoneOffset() * 60000);
+        
+        return fixedDate.getMonth() === targetMonth;
+      });
     }
   }
 

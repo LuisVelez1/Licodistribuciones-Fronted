@@ -1,33 +1,101 @@
-import { Injectable } from "@angular/core";
-import { API_ENDPOINTS } from "../constants/api.constants";
-import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { Requirement } from "../.././core/models/requirement.model";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '../constants/api.constants';
+
+export interface RequirementType {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+export interface RequirementResponse {
+  id: number;
+  title: string;
+  description: string;
+  areaId: number;
+  areaName: string;
+  typeId: number;
+  typeName: string;
+  status: string;
+  priority: string;
+  createdById: string;
+  createdByName: string;
+  assignedToId?: string;
+  assignedToName?: string;
+  dueDate?: string;
+  createdAt: string;
+  active: boolean;
+}
+
+export interface RequirementCreateRequest {
+  title: string;
+  description: string;
+  areaId: number;
+  typeId: number;
+  priority: string;
+  dueDate?: string;
+}
+
+export interface RequirementUpdateRequest {
+  title?: string;
+  description?: string;
+  areaId?: number;
+  typeId?: number;
+  priority?: string;
+  status?: string;
+  assignedTo?: string;
+  dueDate?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class RequirementsService {
 
-private readonly API = `${API_ENDPOINTS.requirements}`;
+  private base = API_ENDPOINTS.requirements;
 
-constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
-    getAll(): Observable<Requirement[]> {
-        return this.http.get<Requirement[]>(this.API);
-    }
+  getAll(): Observable<RequirementResponse[]> {
+    return this.http.get<RequirementResponse[]>(this.base);
+  }
 
-    getById(id: number): Observable<Requirement> {
-        return this.http.get<Requirement>(`${this.API}/${id}`);
-    }
+  getMy(userId: string): Observable<RequirementResponse[]> {
+    return this.http.get<RequirementResponse[]>(`${this.base}/my`, {
+      params: { userId }
+    });
+  }
 
-    create(data: any): Observable<Requirement> {
-        return this.http.post<Requirement>(this.API, data);
-    }
+  getByArea(areaId: number): Observable<RequirementResponse[]> {
+    return this.http.get<RequirementResponse[]>(`${this.base}/area/${areaId}`);
+  }
 
-    update(id: number, data: any): Observable<Requirement> {
-        return this.http.put<Requirement>(`${this.API}/${id}`, data);
-    }
+  getById(id: number): Observable<RequirementResponse> {
+    return this.http.get<RequirementResponse>(`${this.base}/${id}`);
+  }
 
-    delete(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.API}/${id}`);
-    }
+  create(request: RequirementCreateRequest, userId: string): Observable<RequirementResponse> {
+    return this.http.post<RequirementResponse>(this.base, request, {
+      params: { userId }
+    });
+  }
+
+  update(id: number, request: RequirementUpdateRequest): Observable<RequirementResponse> {
+    return this.http.put<RequirementResponse>(`${this.base}/${id}`, request);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  getTypes(): Observable<RequirementType[]> {
+    return this.http.get<RequirementType[]>(`${this.base}/types`);
+  }
+
+  createType(request: { name: string; description?: string }): Observable<RequirementType> {
+  return this.http.post<RequirementType>(`${this.base}/types`, request);
+  }
+
+  deleteType(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/types/${id}`);
+  }
 }

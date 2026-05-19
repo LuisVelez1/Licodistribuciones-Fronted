@@ -29,16 +29,14 @@ export class SessionService {
   }
 
   getRole(): string | null {
-    const token = this.getToken();
-    if(!token) return null;
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role || null;
-    } catch(e){
-      console.error('Error decoding token', e);
-      return null;
+    const info = this.getLoginInfo();
+    
+    if (info && info.roles && info.roles.length > 0) {
+      const primaryRole = info.roles[0];
+      return primaryRole.replace('ROLE_', '');
     }
+
+    return null;
   }
 
   getLoginInfo(): LoginInfo | null {

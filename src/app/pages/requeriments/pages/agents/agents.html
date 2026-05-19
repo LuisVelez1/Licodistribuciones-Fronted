@@ -1,103 +1,59 @@
 <section class="agents-container">
   <div class="agents-header">
-        <h2>Agentes</h2>
-
-        <button class="btn-primary" (click)="openDrawer()">
-            + Nuevo agente
-        </button>
+    <div>
+      <h2>👥 Agentes por Área</h2>
+      <p class="subtitle">Líderes, coordinadores y directores responsables de cada área</p>
+    </div>
   </div>
 
-  <div class="agents-list">
+  @if (loading) {
+    <div class="loading-state">
+      <span>⏳</span>
+      <p>Cargando agentes...</p>
+    </div>
+  } @else if (agents.length === 0) {
+    <div class="empty-state">
+      <span>👤</span>
+      <p>No hay agentes registrados.</p>
+      <small>Los agentes son usuarios con posición "Líder", "Coordinador" o "Director".</small>
+    </div>
+  } @else {
+    <div class="agents-grid">
+      @for (agent of agents; track agent.id) {
+        <div class="agent-card">
 
-    @for (agent of agents; track agent.id) {
-      <div class="agent-card">
-
-        <div class="agent-header">
-          <div class="avatar">
-            {{ agent.name.charAt(0) }}
+          <div class="agent-header">
+            <div class="avatar">{{ getInitials(agent) }}</div>
+            <div class="agent-main">
+              <h3>{{ agent.firstName }} {{ agent.lastName }}</h3>
+              <span class="position">{{ agent.position }}</span>
+            </div>
+            <span class="status-badge" [class.active]="agent.status === 'ACTIVE'">
+              {{ agent.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}
+            </span>
           </div>
 
-          <div class="main-info">
-            <h3>{{ agent.name }}</h3>
-            <span class="area">{{ agent.area }}</span>
+          <div class="agent-details">
+            <div class="detail-item">
+              <span class="detail-label">Área</span>
+              <span class="detail-value">{{ agent.areaName ?? 'Sin área' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Sede</span>
+              <span class="detail-value">{{ agent.sede || '—' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Teléfono</span>
+              <span class="detail-value">{{ agent.phone || '—' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Correo</span>
+              <span class="detail-value email">{{ agent.email }}</span>
+            </div>
           </div>
+
         </div>
-
-        <div class="agent-details">
-          <div>
-            <label>Cédula</label>
-            <span>{{ agent.cedula }}</span>
-          </div>
-
-          <div>
-            <label>Teléfono</label>
-            <span>{{ agent.phone }}</span>
-          </div>
-        </div>
-
-        <div class="agent-stats">
-          <span>
-            <strong>{{ agent.assigned }}</strong> asignados
-          </span>
-
-          <span
-            class="status"
-            [class.active]="agent.active"
-          >
-            {{ agent.active ? 'Activo' : 'Inactivo' }}
-          </span>
-        </div>
-
-      </div>
-    }
-
-  </div>
+      }
+    </div>
+  }
 </section>
-
-@if (isDrawerOpen) {
-  <div class="drawer-backdrop" (click)="closeDrawer()"></div>
-
-  <aside class="drawer">
-    <header class="drawer-header">
-      <h3>Nuevo agente</h3>
-      <button class="close-btn" (click)="closeDrawer()">✕</button>
-    </header>
-
-    <form class="drawer-form">
-      <div class="form-group">
-        <label>Nombre completo</label>
-        <input type="text" placeholder="Luis Vélez" />
-      </div>
-
-      <div class="form-group">
-        <label>Cédula</label>
-        <input type="text" />
-      </div>
-
-      <div class="form-group">
-        <label>Teléfono</label>
-        <input type="text" />
-      </div>
-
-      <div class="form-group">
-        <label>Área</label>
-        <select>
-          <option>TI</option>
-          <option>TH</option>
-          <option>Facturación</option>
-        </select>
-      </div>
-
-      <div class="drawer-actions">
-        <button type="button" class="btn-secondary" (click)="closeDrawer()">
-          Cancelar
-        </button>
-
-        <button type="submit" class="btn-primary">
-          Guardar
-        </button>
-      </div>
-    </form>
-  </aside>
-}
-

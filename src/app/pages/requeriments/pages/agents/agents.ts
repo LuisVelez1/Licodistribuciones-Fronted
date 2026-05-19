@@ -1,15 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Agent {
-  id: number;
-  name: string;
-  cedula: string;
-  phone: string;
-  area: string;
-  assigned: number;
-  active: boolean;
-}
+import { UserService } from '../../../../core/services/user.service';
+import { UserA } from '../../../../core/models/user-admin.model';
 
 @Component({
   standalone: true,
@@ -18,46 +10,44 @@ interface Agent {
   templateUrl: './agents.html',
   styleUrl: './agents.scss'
 })
-export class AgentsComponent {
+export class AgentsComponent implements OnInit {
 
-  isDrawerOpen: boolean = false;
+  allUsers: UserA[] = [];
+  agents: UserA[] = [];
+  loading = true;
 
-  openDrawer() {
-    this.isDrawerOpen = true;
+  private readonly AGENT_KEYWORDS = ['lider', 'líder', 'director', 'gerente', 'coordinador'];
+
+  constructor(private userService: UserService) {}
+
+  ngOnInit(): void {
+    this.loadAgents();
   }
 
-  closeDrawer() {
-    this.isDrawerOpen = false;
+  loadAgents(): void {
+    this.userService.getAllAdminUsers().subscribe({
+      next: (users) => {
+        this.allUsers = users;
+        this.agents = users.filter(u =>
+          u.position &&
+          this.AGENT_KEYWORDS.some(k =>
+            u.position!.toLowerCase().includes(k)
+          )
+        );
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error cargando agentes', err);
+        this.loading = false;
+      }
+    });
   }
 
-  agents: Agent[] = [
-    {
-      id: 1,
-      name: 'Carlos Pérez',
-      cedula: '1234567890',
-      phone: '3001234567',
-      area: 'TI',
-      assigned: 5,
-      active: true
-    },
-    {
-      id: 2,
-      name: 'Laura Gómez',
-      cedula: '0987654321',
-      phone: '3009876543',
-      area: 'TH',
-      assigned: 2,
-      active: true
-    },
-    {
-      id: 3,
-      name: 'Andrés Ruiz',
-      cedula: '1122334455',
-      phone: '3001122334',
-      area: 'Facturación',
-      assigned: 0,
-      active: false
-    }
-  ];
+  getInitials(user: UserA): string {
+    return `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase();
+  }
 
+  getAreaName(user: UserA): string {
+    return (user as any).areaName ?? (user as any).area ?? 'Sin área';
+  }
 }

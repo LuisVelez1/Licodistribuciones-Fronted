@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
   selector: 'app-auth-layout',
   standalone: true,
   imports: [CommonModule, RouterOutlet],
-  templateUrl: './auth-layout.component.html',
-  styleUrls: ['./auth-layout.component.scss']
+  templateUrl: './auth-layout.component.html'
 })
 export class AuthLayoutComponent {}

@@ -20,11 +20,9 @@ import { UserA } from '../../../core/models/user-admin.model';
   ]
 })
 export class UsersComponent implements OnInit {
-
   private userService = inject(UserService);
-  private router = inject(Router);
 
-  users: UserA[] = [];
+ users: UserA[] = [];
   loading = true;
 
   ngOnInit(): void {
@@ -32,43 +30,16 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers() {
-    this.loading = true;
     this.userService.getAllAdminUsers().subscribe({
-      next: (res) => {
-        this.users = res;
+      next: (data) => {
+        this.users = data;
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error cargando usuarios', err);
         this.loading = false;
       }
     });
   }
-
-  createUser() {
-    this.router.navigate(['/admin/create-user']);
-  }
-
-  editUser(id: string) {
-    this.router.navigate(['/admin/edit-user', id]);
-  }
-
-  changePassword(id: string) {
-    this.router.navigate(['/admin/change-password'], {
-      queryParams: { userId: id }
-    });
-  }
-
-  deleteUser(id: string) {
-    if (!confirm('¿Seguro que deseas desactivar este usuario?')) return;
-
-    this.userService.deleteAdminUser(id).subscribe({
-      next: () => this.loadUsers(),
-      error: err => {
-        console.error('Error eliminando usuario', err);
-        alert('Error al desactivar usuario');
-      }
-    });
-  }
-
 }
 

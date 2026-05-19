@@ -8,12 +8,10 @@ export const authGuard: CanActivateFn = () => {
 
   const token = session.getToken();
 
-  // retorna al login si no hay token
   if (!token) {
     return router.createUrlTree(['/auth/login']);
   }
 
-  // Si el token expira devuelve al login
   if (session.isTokenExpired()) {
     session.clearSession();
     return router.createUrlTree(['/auth/login']);

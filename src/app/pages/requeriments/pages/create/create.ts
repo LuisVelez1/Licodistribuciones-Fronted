@@ -1,9 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { RequirementsStoreService, Priority, RequirementStatus } from "../../../../core/services/requirements-store.service";
-import { AuthService } from "../../../../core/services/auth.service";
+import { AreaService } from "../../../../core/services/area.service";
+import { AreaResponse } from "../../../../core/models/area.model";
+import { UserService } from "../../../../core/services/user.service";
+import { RequirementsService, RequirementType } from "../../../../core/services/requriments.service";
 
 @Component({
   standalone: true,
@@ -12,86 +14,111 @@ import { AuthService } from "../../../../core/services/auth.service";
   templateUrl: './create.html',
   styleUrl: './create.scss'
 })
-export class CreateRequerimentComponent {
+export class CreateRequerimentComponent implements OnInit {
 
-  areas = ['TI', 'TH', 'FACTURACIÓN'];
-
-  requestTypesByArea: Record<string, string[]> = {
-    TI: ['Cambio de equipo', 'Asignación de usuario', 'Soporte técnico'],
-    TH: ['Solicitud de certificado', 'Vacaciones', 'Permisos'],
-    FACTURACIÓN: ['Reembolso', 'Certificación de pagos']
-  };
-
-  requestTypes: string[] = [];
+  areas: AreaResponse[] = [];
+  allTypes: RequirementType[] = [];
+  filteredTypes: RequirementType[] = [];
   attachments: File[] = [];
+
+  currentUserId = '';
+  currentUserName = '';
+  currentUserEmail = '';
+
+  submitting = false;
   successMessage = '';
+  errorMessage = '';
 
   form!: FormGroup;
 
   constructor(
     private fb: FormBuilder,
-    private requirementsStore: RequirementsStoreService,
+    private requirementsService: RequirementsService,
+    private areaService: AreaService,
+    private userService: UserService,
     private router: Router
   ) {
     this.form = this.fb.group({
-      priority: ['', Validators.required],
-      area: ['', Validators.required],
-      type: ['', Validators.required],
-      description: ['', [Validators.required, Validators.minLength(10)]]
+      areaId:      ['', Validators.required],
+      typeId:      ['', Validators.required],
+      priority:    ['', Validators.required],
+      title:       ['', Validators.required],
+      description: ['', [Validators.required, Validators.minLength(10)]],
     });
   }
 
-  onAreaChange(area: string) {
-    this.requestTypes = this.requestTypesByArea[area] || [];
-    this.form.patchValue({ type: '' });
+  ngOnInit(): void {
+    this.loadCurrentUser();
+    this.loadAreas();
+    this.loadTypes();
   }
 
-  onFileSelected(event: Event) {
+  loadCurrentUser(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        this.currentUserId = user.id;
+        this.currentUserName = `${user.firstName} ${user.lastName}`;
+        this.currentUserEmail = user.email ?? '';
+      },
+      error: (err) => console.error('Error cargando usuario', err)
+    });
+  }
+
+  loadAreas(): void {
+    this.areaService.findAll().subscribe({
+      next: (data) => this.areas = data,
+      error: (err) => console.error('Error cargando áreas', err)
+    });
+  }
+
+  loadTypes(): void {
+    this.requirementsService.getTypes().subscribe({
+      next: (data) => this.allTypes = data,
+      error: (err) => console.error('Error cargando tipos', err)
+    });
+  }
+
+  onAreaChange(areaId: string): void {
+    // Resetear tipo al cambiar área
+    this.form.patchValue({ typeId: '' });
+    this.filteredTypes = this.allTypes;
+  }
+
+  onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files) this.attachments = Array.from(input.files);
   }
 
-  submit() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+  submit(): void {
+    this.submitting = true;
+    this.errorMessage = '';
 
-    // Obtener nombre del usuario desde el token JWT mock
-    const userName = this.getUserNameFromToken();
+    const payload = {
+      title:       this.form.value.title,
+      description: this.form.value.description,
+      areaId:      Number(this.form.value.areaId),
+      typeId:      Number(this.form.value.typeId),
+      priority:    this.form.value.priority,
+    };
 
-    this.requirementsStore.add({
-      ...this.form.value,
-      priority: this.form.value.priority as Priority,
-      status: 'pendiente' as RequirementStatus,
-      attachments: this.attachments.map(f => f.name),
-      createdBy: { name: userName, email: '' },
-      createdAt: new Date().toISOString().split('T')[0]
+    this.requirementsService.create(payload, this.currentUserId).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.successMessage = '✅ Requerimiento creado exitosamente.';
+        this.form.reset();
+        this.attachments = [];
+        this.filteredTypes = [];
+
+        setTimeout(() => {
+          this.successMessage = '';
+          this.router.navigate(['/requeriments/my-requeriments']);
+        }, 1500);
+      },
+      error: (err) => {
+        this.submitting = false;
+        this.errorMessage = '❌ Error al crear el requerimiento. Intenta de nuevo.';
+        console.error(err);
+      }
     });
-
-    this.successMessage = '✅ Requerimiento creado exitosamente.';
-    this.form.reset();
-    this.attachments = [];
-    this.requestTypes = [];
-
-    setTimeout(() => {
-      this.successMessage = '';
-      this.router.navigate(['/requeriments/my-requeriments']);
-    }, 1500);
-  }
-
-  private getUserNameFromToken(): string {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return 'Usuario';
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      // username viene como "jorge.barbosa" → convertir a "Jorge Barbosa"
-      return (payload.username as string)
-        .split('.')
-        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
-    } catch {
-      return 'Usuario';
-    }
   }
 }

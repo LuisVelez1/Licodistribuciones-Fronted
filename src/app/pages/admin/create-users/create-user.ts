@@ -1,43 +1,60 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../core/services/user.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-create-users',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    MatFormFieldModule, 
+    MatSelectModule, 
+    MatDatepickerModule, 
+    MatInputModule
+  ],
   templateUrl: './create-user.html',
   styleUrls: ['./create-user.scss']
 })
-export class CreateUsersComponent {
+export class CreateUsersComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private userService = inject(UserService);
-  private router = inject(Router);
 
   loading = false;
   error: string | null = null;
   success: string | null = null;
-
+  
+  areas: any[] = [];
 
   form = this.fb.nonNullable.group({
     firstName: ['', [Validators.required, Validators.minLength(2)]],
     lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/)
-    ]],
-    role: ['MANAGER', Validators.required],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    role: ['ADMIN', Validators.required],
     phone: ['', [Validators.required, Validators.pattern(/^[0-9]{7,15}$/)]],
     position: ['', Validators.required],
     sede: ['', Validators.required],
-    area: ['', Validators.required],
-    birthday: ['', Validators.required],
+    areaId: ['', Validators.required],
+    birthDate: ['', Validators.required],
   });
+
+  ngOnInit(): void {
+    this.loadAreas();
+  }
+
+  loadAreas() {
+    this.userService.getAreas().subscribe({
+      next: (data) => this.areas = data,
+      error: (err) => console.error('Error al cargar áreas', err)
+    });
+  }
 
   submit() {
     if (this.loading) return;
@@ -49,15 +66,25 @@ export class CreateUsersComponent {
 
     this.loading = true;
     this.error = null;
+    this.success = null;
 
-    this.userService.createAdminUser(this.form.getRawValue()).subscribe({
-            next: () => {
+    const rawValues = this.form.getRawValue();
+    
+    const payload = {
+      ...rawValues,
+      areaId: Number(rawValues.areaId),
+      birthDate: rawValues.birthDate ? new Date(rawValues.birthDate).toISOString().split('T')[0] : null
+    };
+
+    this.userService.createAdminUser(payload).subscribe({
+      next: () => {
         this.loading = false;
         this.success = 'Usuario creado correctamente';
         this.form.reset({
-            role: 'MANAGER'
+          role: 'ADMIN',
+          sede: 'Armenia'
         });
-        },
+      },
       error: (err) => {
         console.error(err);
         this.loading = false;

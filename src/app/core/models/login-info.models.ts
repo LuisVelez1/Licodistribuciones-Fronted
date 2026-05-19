@@ -7,5 +7,6 @@ export interface LoginInfo {
   position?: string;
   phone?: string;
   sede?: string;
+  roles?: string[];
   loginTime: Date | string;
 }

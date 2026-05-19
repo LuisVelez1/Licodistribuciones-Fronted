@@ -1,11 +1,16 @@
 export interface User {
-  id?: string;
+  id: string;
   firstName: string;
   lastName: string;
   email?: string;
-  position?: string;
-  area?: string;
   phone?: string;
-  sede?:string;
+  position?: string;
+  sede?: string;
+  status?: string;
+  areaId?: number;
+  areaName?: string;
+  birthDate?: string;
+  createdAt?: string;
+  roles?: string[];
   loginTime?: string;
 }

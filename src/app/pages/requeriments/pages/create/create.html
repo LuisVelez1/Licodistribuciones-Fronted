@@ -1,97 +1,93 @@
 <section class="create-requeriment">
-
   <h2>Crear requerimiento</h2>
 
   <div class="form-section">
-    <span>Solicitante</span>
-
+    <span class="section-label">Solicitante</span>
     <div class="user-card">
-      <strong>Solicitante</strong>
-      <span>sistemas@licodistribuciones.com</span>
+      <div class="user-avatar">{{ currentUserName[0] }}</div>
+      <div>
+        <strong>{{ currentUserName }}</strong>
+        <span>{{ currentUserEmail }}</span>
+      </div>
     </div>
   </div>
 
+  @if (successMessage) {
+    <div class="alert success">{{ successMessage }}</div>
+  }
+  @if (errorMessage) {
+    <div class="alert error">{{ errorMessage }}</div>
+  }
+
   <form [formGroup]="form" (ngSubmit)="submit()">
-
     <div class="form-section">
-
-      <span>Clasificación</span>
-
+      <span class="section-label">Clasificación</span>
       <div class="form-row">
 
         <div class="form-group">
-          <label>Área</label>
-          <select
-            formControlName="area"
-            (change)="onAreaChange($any($event.target).value)">
+          <label>Área *</label>
+          <select formControlName="areaId" (change)="onAreaChange($any($event.target).value)">
             <option value="">Seleccione un área</option>
-
-            @for (area of areas; track area) {
-              <option [value]="area">{{ area }}</option>
+            @for (area of areas; track area.id) {
+              <option [value]="area.id">{{ area.name }}</option>
             }
           </select>
         </div>
 
         <div class="form-group">
-          <label>Tipo</label>
-          <select
-            formControlName="type"
-            [disabled]="requestTypes.length === 0">
+          <label>Tipo *</label>
+          <select formControlName="typeId">
             <option value="">Seleccione un tipo</option>
-
-            @for (type of requestTypes; track type) {
-              <option [value]="type">{{ type }}</option>
+            @for (type of allTypes; track type.id) {
+              <option [value]="type.id">{{ type.name }}</option>
             }
           </select>
         </div>
 
         <div class="form-group">
-          <label>Prioridad</label>
+          <label>Prioridad *</label>
           <select formControlName="priority">
             <option value="">Seleccione prioridad</option>
-            <option value="BAJA">Baja</option>
-            <option value="MEDIA">Media</option>
-            <option value="ALTA">Alta</option>
-            <option value="CRITICA">Crítica</option>
+            <option value="BAJA">🟢 Baja</option>
+            <option value="MEDIA">🟡 Media</option>
+            <option value="ALTA">🟠 Alta</option>
+            <option value="CRITICA">🔴 Crítica</option>
           </select>
         </div>
 
       </div>
-
     </div>
 
+    <!-- Detalle -->
     <div class="form-section">
-
-      <span>Detalle</span>
+      <span class="section-label">Detalle</span>
 
       <div class="form-group">
-        <label>Descripción</label>
-        <textarea
-          rows="4"
-          formControlName="description"
-          placeholder="Describe el requerimiento...">
+        <label>Título *</label>
+        <input type="text" formControlName="title" placeholder="Ej: Equipo sin acceso a red" />
+      </div>
+
+      <div class="form-group">
+        <label>Descripción *</label>
+        <textarea rows="4" formControlName="description"
+          placeholder="Describe el requerimiento con el mayor detalle posible...">
         </textarea>
       </div>
 
       <div class="file-upload">
-  <label class="file-label">
-    <input
-      type="file"
-      multiple
-      (change)="onFileSelected($event)"
-    />
-        <span class="file-button">
-          📎 Adjuntar archivos
-        </span>
-      </label>
+        <label class="file-label">
+          <input type="file" multiple (change)="onFileSelected($event)" />
+          <span class="file-button">📎 Adjuntar archivos</span>
+        </label>
+        @if (attachments.length > 0) {
+          <small class="file-info">{{ attachments.length }} archivo(s) seleccionados</small>
+        }
+      </div>
+    </div>
 
-      @if (attachments.length > 0) {
-        <small class="file-info">
-          {{ attachments.length }} archivo(s) seleccionados
-        </small>
-      }
-    </div>
-    </div>
-    <button type="submit">Crear requerimiento</button>
+    <button type="submit" [disabled]="submitting || form.invalid">
+      {{ submitting ? 'Enviando...' : 'Crear requerimiento' }}
+    </button>
+
   </form>
 </section>

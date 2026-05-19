@@ -1,15 +1,26 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HomeRightComponent } from "../home-right/home-right";
 import { CommonModule } from '@angular/common';
 
+import { HomeRightComponent } from '../home-right/home-right';
+import { NewsService } from '../../core/services/news.service';
+import { UserService } from '../../core/services/user.service';
+import { NewsCommentService } from '../../core/services/news-comment.service';
+
 interface Comment {
+  id: number;
+  newsId: number;
+
+  userId: string;
   author: string;
-  text: string;
-  time: string;
+
+  comment: string;
+  createdAt: string;
 }
 
 interface NewsPost {
+  id: number;
+  userId: number;
   title: string;
   category: string;
   date: string;
@@ -25,9 +36,12 @@ interface NewPostForm {
   title: string;
   category: string;
   description: string;
+
   contentType: 'video' | 'image' | 'none';
+
   videoPreview: string;
   imagePreview: string;
+
   videoFile: File | null;
   imageFile: File | null;
 }
@@ -35,49 +49,203 @@ interface NewPostForm {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, HomeRightComponent, CommonModule],
+  imports: [
+    FormsModule,
+    CommonModule,
+    HomeRightComponent
+  ],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
-export class HomeComponent {
-  userName = 'Jorge Barbosa';
+export class HomeComponent implements OnInit {
+
+  constructor(
+    private newsService: NewsService,
+    private userService: UserService,
+    private newsCommentService: NewsCommentService
+  ) {}
+
+  currentUser: any = null;
   menuOpen = false;
+  editingPostId: number | null = null;
   profileOpen = signal(false);
+  showDeleteModal = false;
+  postToDeleteId: number | null = null;
+
   showUploadForm = false;
 
   newPost: NewPostForm = this.emptyForm();
 
-  newsPosts: NewsPost[] = [
-    {
-      title: '¡Bienvenidos a la nueva Intranet Lico Distribuciones!',
-      category: 'Comunicado',
-      date: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }),
-      videoSrc: 'assets/videos/VIdeoHome.mp4',
-      description: 'Explora todas las herramientas y funcionalidades que hemos preparado para mejorar nuestra comunicación interna.',
-      comments: [
-        { author: 'Laura Gómez', text: '¡Qué buena noticia! Me encanta la nueva plataforma.', time: 'hace 2 horas' },
-        { author: 'Carlos Ruiz', text: 'Muy buena iniciativa para el equipo.', time: 'hace 1 hora' }
-      ],
-      showComments: false,
-      newComment: ''
+  newsPosts: NewsPost[] = [];
+  isUploading = false;
+  uploadProgress = 0;
+
+  ngOnInit(): void {
+  this.loadNews();
+  this.loadCurrentUser();
+}
+
+loadCurrentUser() {
+  this.userService.getCurrentUser().subscribe({
+    next: (user) => {
+      this.currentUser = user;
     },
-    {
-      title: 'Actualización de procesos - Temporada 2025',
-      category: 'Operaciones',
-      date: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }),
-      videoSrc: 'assets/videos/videoHome2.mp4',
-      description: 'Conoce los nuevos procedimientos y cambios implementados para optimizar nuestras operaciones este año.',
-      comments: [],
-      showComments: false,
-      newComment: ''
+    error: (err) => {
+      console.error('Error obteniendo usuario actual', err);
     }
-  ];
+  });
+}
+
+canManagePost(post: any): boolean {
+
+  if (!this.currentUser) return false;
+
+  const isSuperAdmin =
+    this.currentUser.roles?.includes('SUPER_ADMIN');
+
+  const isOwner =
+    String(post.userId) === String(this.currentUser.id);
+
+  return isSuperAdmin || isOwner;
+}
+
+  loadNews() {
+
+    this.newsService.getAll().subscribe({
+
+      next: (data: any[]) => {
+
+        
+        this.newsPosts = data.map((n: any) => ({
+          
+          id: n.id,
+
+          userId: n.userId,
+
+          title: n.title,
+
+          category: n.category,
+
+          description: n.description,
+
+          date: new Date(n.createdAt)
+            .toLocaleDateString('es-CO', {
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric'
+            }),
+
+          videoSrc: n.videoUrl
+            ? `http://localhost:8080/api/${n.videoUrl}`
+            : undefined,
+
+          imageSrc: n.imageUrl
+            ? `http://localhost:8080/api/${n.imageUrl}`
+            : undefined,
+
+          comments: [],
+
+          showComments: false,
+
+          newComment: ''
+
+          
+        }));
+      },
+      
+
+      error: (err) => {
+        console.error('Error cargando noticias', err);
+      }
+    });
+  }
+
+
+  publishPost() {
+
+  if (!this.newPost.title || !this.newPost.category || !this.newPost.description) {
+    return;
+  }
+
+  const payload = {
+    title: this.newPost.title,
+    category: this.newPost.category,
+    description: this.newPost.description,
+    contentType: this.newPost.contentType.toUpperCase()
+  };
+
+  let file: File | undefined;
+
+  if (this.newPost.contentType === 'video') {
+    file = this.newPost.videoFile ?? undefined;
+  }
+
+  if (this.newPost.contentType === 'image') {
+    file = this.newPost.imageFile ?? undefined;
+  }
+
+  this.isUploading = true;
+  this.uploadProgress = 0;
+
+  const request$ = this.editingPostId
+    ? this.newsService.update(this.editingPostId, payload, file)
+    : this.newsService.create(payload, file);
+
+  request$.subscribe({
+    next: () => {
+      this.loadNews();
+      this.newPost = this.emptyForm();
+      this.showUploadForm = false;
+      this.isUploading = false;
+      this.editingPostId = null;
+    },
+    error: (err) => {
+      console.error(err);
+      this.isUploading = false;
+    }
+  });
+}
 
   private emptyForm(): NewPostForm {
+
     return {
+
       title: '',
+
       category: '',
+
       description: '',
+
+      contentType: 'none',
+
+      videoPreview: '',
+
+      imagePreview: '',
+
+      videoFile: null,
+
+      imageFile: null
+    };
+  }
+
+  toggleUploadForm() {
+
+    this.showUploadForm = !this.showUploadForm;
+
+    if (!this.showUploadForm) {
+      this.newPost = this.emptyForm();
+    }
+  }
+
+  startEdit(post: NewsPost) {
+    this.showUploadForm = true;
+
+    this.editingPostId = post.id;
+
+    this.newPost = {
+      title: post.title,
+      category: post.category,
+      description: post.description,
       contentType: 'none',
       videoPreview: '',
       imagePreview: '',
@@ -86,18 +254,16 @@ export class HomeComponent {
     };
   }
 
-  toggleUploadForm() {
-    this.showUploadForm = !this.showUploadForm;
-    if (!this.showUploadForm) {
-      this.newPost = this.emptyForm();
-    }
-  }
-
   onVideoSelected(event: Event) {
+
     const input = event.target as HTMLInputElement;
+
     if (input.files && input.files[0]) {
+
       const file = input.files[0];
+
       this.newPost.videoFile = file;
+
       this.newPost.videoPreview = URL.createObjectURL(file);
     }
   }
@@ -107,55 +273,103 @@ export class HomeComponent {
     if (input.files && input.files[0]) {
       const file = input.files[0];
       this.newPost.imageFile = file;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.newPost.imagePreview = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+      this.newPost.imagePreview = URL.createObjectURL(file);
     }
-  }
-
-  publishPost() {
-    if (!this.newPost.title || !this.newPost.category || !this.newPost.description) return;
-
-    const post: NewsPost = {
-      title: this.newPost.title,
-      category: this.newPost.category,
-      description: this.newPost.description,
-      date: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }),
-      comments: [],
-      showComments: false,
-      newComment: ''
-    };
-
-    if (this.newPost.contentType === 'video' && this.newPost.videoPreview) {
-      post.videoSrc = this.newPost.videoPreview;
-    }
-    if (this.newPost.contentType === 'image' && this.newPost.imagePreview) {
-      post.imageSrc = this.newPost.imagePreview;
-    }
-
-    this.newsPosts.unshift(post);
-    this.newPost = this.emptyForm();
-    this.showUploadForm = false;
   }
 
   toggleComments(index: number) {
-    this.newsPosts[index].showComments = !this.newsPosts[index].showComments;
+
+  const post = this.newsPosts[index];
+
+  post.showComments = !post.showComments;
+
+  if (post.showComments) {
+
+    this.newsCommentService.getComments(post.id).subscribe({
+
+      next: (comments) => {
+
+        post.comments = comments.map(c => ({
+
+          id: c.id,
+          newsId: c.newsId,
+
+          userId: c.userId,
+          author: c.author,
+
+          comment: c.comment,
+
+          createdAt: c.createdAt
+        }));
+      },
+
+      error: (err) => {
+        console.error('Error cargando comentarios', err);
+      }
+    });
   }
+}
 
   addComment(index: number) {
-    const post = this.newsPosts[index];
-    if (!post.newComment.trim()) return;
-    post.comments.push({
-      author: this.userName,
-      text: post.newComment.trim(),
-      time: 'ahora mismo'
-    });
-    post.newComment = '';
+
+  const post = this.newsPosts[index];
+
+  if (!post.newComment.trim()) return;
+
+  this.newsCommentService.createComment(
+    post.id,
+    {
+      comment: post.newComment
+    }
+  ).subscribe({
+
+    next: (comment) => {
+
+      post.comments.push(comment);
+
+      post.newComment = '';
+    },
+
+    error: (err) => {
+      console.error('Error creando comentario', err);
+    }
+  });
+}
+
+openDeleteModal(id: number) {
+  this.postToDeleteId = id;
+  this.showDeleteModal = true;
+}
+
+closeDeleteModal() {
+  this.showDeleteModal = false;
+  this.postToDeleteId = null;
+}
+
+confirmDelete() {
+  if (!this.postToDeleteId) return;
+
+  this.newsService.delete(this.postToDeleteId).subscribe({
+    next: () => {
+      this.newsPosts = this.newsPosts.filter(p => p.id !== this.postToDeleteId);
+      this.closeDeleteModal();
+    },
+    error: (err) => {
+      console.error('Error eliminando noticia', err);
+      this.closeDeleteModal();
+    }
+  });
+}
+
+  toogleMenu() {
+    this.menuOpen = !this.menuOpen;
   }
 
-  toogleMenu() { this.menuOpen = !this.menuOpen; }
-  closeMenu() { this.menuOpen = false; }
-  toogleProfile() { this.profileOpen.update(open => !open); }
+  closeMenu() {
+    this.menuOpen = false;
+  }
+
+  toogleProfile() {
+    this.profileOpen.update(open => !open);
+  }
 }
