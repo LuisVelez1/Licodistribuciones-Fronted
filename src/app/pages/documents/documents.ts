@@ -57,7 +57,8 @@ export class DocumentsComponent implements OnInit {
   userLoaded = false;
   editMode = false;
   editForm: any = {};
-
+  viewMode: 'list' | 'folders' = 'list';
+  selectedArea: string | null = null;
   newDoc: NewDocForm = this.emptyForm();
   
   currentUserId = '';
@@ -161,6 +162,35 @@ loadCurrentUser(): void {
   };
 }
 
+get areaFolders(): { name: string; count: number }[] {
+  const map = new Map<string, number>();
+
+  this.documents.forEach(d => {
+    const area = d.area?.trim() || 'General';
+    map.set(area, (map.get(area) ?? 0) + 1);
+  });
+
+  return Array.from(map.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+toggleView(): void {
+  this.viewMode = this.viewMode === 'list' ? 'folders' : 'list';
+  this.selectedArea = null;
+  this.applyFilter();
+}
+
+openFolder(areaName: string): void {
+  this.selectedArea = areaName;
+  this.applyFilter();
+}
+
+backToFolders(): void {
+  this.selectedArea = null;
+  this.applyFilter();
+}
+
 
   private emptyForm(): NewDocForm {
     return {
@@ -215,21 +245,31 @@ loadCurrentUser(): void {
 }
 
 
-  /** Llamado desde el template con (ngModelChange) */
   filterDocuments(): void {
     this.applyFilter();
   }
 
   private applyFilter(): void {
     const text = this.searchText.toLowerCase();
+
     this.filteredDocuments = this.documents.filter(d => {
+
       const matchText =
         !text ||
         d.name.toLowerCase().includes(text) ||
         (d.description ?? '').toLowerCase().includes(text);
+
       const matchCat =
         !this.filterCategory || d.category === this.filterCategory;
-      return matchText && matchCat;
+
+      let matchArea = true;
+
+      if (this.viewMode === 'folders' && this.selectedArea !== null) {
+        const docArea = d.area?.trim() || 'General';
+        matchArea = docArea === this.selectedArea;
+      }
+
+      return matchText && matchCat && matchArea;
     });
   }
 
@@ -247,7 +287,6 @@ loadCurrentUser(): void {
   downloadDocument(doc: DocFile): void {
   this.documentsService.download(doc.id).subscribe({
     next: (blob) => {
-      // Reconstruir blob con el tipo correcto según extensión
       const ext = doc.fileName.split('.').pop()?.toLowerCase() ?? '';
       const mimeTypes: Record<string, string> = {
         pdf: 'application/pdf',
@@ -267,7 +306,7 @@ loadCurrentUser(): void {
       const url = URL.createObjectURL(typedBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = doc.fileName;  // ← nombre real con extensión
+      a.download = doc.fileName;
       a.click();
       URL.revokeObjectURL(url);
     },
@@ -297,7 +336,6 @@ loadCurrentUser(): void {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
-  // ── Modal confirmación eliminar ──────────
 showDeleteConfirm = false;
 docToDelete: DocFile | null = null;
 

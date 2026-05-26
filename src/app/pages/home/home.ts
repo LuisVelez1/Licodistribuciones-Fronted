@@ -103,62 +103,45 @@ canManagePost(post: any): boolean {
   const isSuperAdmin =
     this.currentUser.roles?.includes('SUPER_ADMIN');
 
+  const isAdmin =
+    this.currentUser.roles?.includes('ADMIN');
+
   const isOwner =
     String(post.userId) === String(this.currentUser.id);
 
-  return isSuperAdmin || isOwner;
+  return isSuperAdmin || isAdmin || isOwner;
 }
 
-  loadNews() {
-
-    this.newsService.getAll().subscribe({
-
-      next: (data: any[]) => {
-
-        
-        this.newsPosts = data.map((n: any) => ({
-          
-          id: n.id,
-
-          userId: n.userId,
-
-          title: n.title,
-
-          category: n.category,
-
-          description: n.description,
-
-          date: new Date(n.createdAt)
-            .toLocaleDateString('es-CO', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric'
-            }),
-
-          videoSrc: n.videoUrl
-            ? `http://localhost:8080/api/${n.videoUrl}`
-            : undefined,
-
-          imageSrc: n.imageUrl
-            ? `http://localhost:8080/api/${n.imageUrl}`
-            : undefined,
-
-          comments: [],
-
-          showComments: false,
-
-          newComment: ''
-
-          
-        }));
-      },
+loadNews() {
+  this.newsService.getAll().subscribe({
+    next: (data: any[]) => {
+      this.newsPosts = data.map((n: any) => ({
+        id: n.id,
+        userId: n.createdBy,
+        title: n.title,
+        category: n.category,
+        description: n.description,
+        date: new Date(n.createdAt).toLocaleDateString('es-CO', {
+          day: '2-digit', month: 'long', year: 'numeric'
+        }),
+        videoSrc: n.videoUrl ? `http://localhost:8081/api/${n.videoUrl}` : undefined,
+        imageSrc: n.imageUrl ? `http://localhost:8081/api/${n.imageUrl}` : undefined,
+        comments: (n.comments || []).map((c: any) => ({
+          id: c.id,
+          newsId: n.id,
+          userId: c.userId,
+          author: c.author,
+          comment: c.comment,
+          createdAt: c.createdAt
+        })),
+        showComments: false,
+        newComment: ''
+      }));
+    },
+    error: (err) => console.error('Error cargando noticias', err)
+  });
+}
       
-
-      error: (err) => {
-        console.error('Error cargando noticias', err);
-      }
-    });
-  }
 
 
   publishPost() {
@@ -239,16 +222,17 @@ canManagePost(post: any): boolean {
 
   startEdit(post: NewsPost) {
     this.showUploadForm = true;
-
     this.editingPostId = post.id;
+
+    const contentType = post.videoSrc ? 'video' : post.imageSrc ? 'image' : 'none';
 
     this.newPost = {
       title: post.title,
       category: post.category,
       description: post.description,
-      contentType: 'none',
-      videoPreview: '',
-      imagePreview: '',
+      contentType: contentType,
+      videoPreview: post.videoSrc ?? '',
+      imagePreview: post.imageSrc ?? '',
       videoFile: null,
       imageFile: null
     };

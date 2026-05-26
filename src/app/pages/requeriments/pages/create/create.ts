@@ -19,7 +19,6 @@ export class CreateRequerimentComponent implements OnInit {
   areas: AreaResponse[] = [];
   allTypes: RequirementType[] = [];
   filteredTypes: RequirementType[] = [];
-  attachments: File[] = [];
 
   currentUserId = '';
   currentUserName = '';
@@ -79,15 +78,17 @@ export class CreateRequerimentComponent implements OnInit {
   }
 
   onAreaChange(areaId: string): void {
-    // Resetear tipo al cambiar área
     this.form.patchValue({ typeId: '' });
-    this.filteredTypes = this.allTypes;
+    if (!areaId) {
+        this.filteredTypes = [];
+        return;
+    }
+    this.requirementsService.getTypesByArea(Number(areaId)).subscribe({
+        next: (types) => this.filteredTypes = types,
+        error: (err) => console.error('Error cargando tipos', err)
+    });
   }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files) this.attachments = Array.from(input.files);
-  }
 
   submit(): void {
     this.submitting = true;
@@ -106,7 +107,6 @@ export class CreateRequerimentComponent implements OnInit {
         this.submitting = false;
         this.successMessage = '✅ Requerimiento creado exitosamente.';
         this.form.reset();
-        this.attachments = [];
         this.filteredTypes = [];
 
         setTimeout(() => {

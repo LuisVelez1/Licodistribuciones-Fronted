@@ -10,6 +10,7 @@ import { BirthdayService, BirthdayResponse } from '../../core/services/birthday.
 import { DirectoryDialogComponent } from './directory/directory-dialog';
 import { UserService } from '../../core/services/user.service';
 import { UserA } from '../../core/models/user-admin.model';
+import { BirthdayTodayDialogComponent } from './birthday-today/birthday-today-dialog';
 
 interface Birthday {
   name: string;
@@ -57,10 +58,32 @@ export class HomeRightComponent implements OnInit {
             };
           });
           this.filteredBirthdays = [...this.birthdays]; 
+          this.checkTodayBirthdays();
         },
         error: err => console.error('Error:', err)
       });
     }
+
+  checkTodayBirthdays() {
+    const today = new Date();
+
+    const todayBirthdays = this.birthdays.filter(b => {
+      return (
+        b.date.getDate()  === today.getDate() &&
+        b.date.getMonth() === today.getMonth()
+      );
+    });
+
+    if (todayBirthdays.length === 0) return;
+    setTimeout(() => {
+      this.dialog.open(BirthdayTodayDialogComponent, {
+        width: '420px',
+        maxHeight: '90vh',
+        disableClose: false,
+        data: { birthdays: todayBirthdays }
+      });
+    }, 800);
+  }
 
   loadDirectoryPreview() {
     this.userService.getAllAdminUsers().subscribe({
@@ -82,7 +105,7 @@ export class HomeRightComponent implements OnInit {
 
       // diff en días aproximado (mes*31 + dia): 0 = hoy
       let diff = (bMonth - todayMonth) * 31 + (bDay - todayDay);
-      if (diff < 0) diff += 365; // ya pasó este año → aparece el próximo
+      if (diff < 0) diff += 365;
 
       return { birthday: b, diff };
     });

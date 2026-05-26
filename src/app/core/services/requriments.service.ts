@@ -7,6 +7,7 @@ export interface RequirementType {
   id: number;
   name: string;
   description?: string;
+  areaId?: number;
 }
 
 export interface RequirementResponse {
@@ -91,8 +92,12 @@ export class RequirementsService {
     return this.http.get<RequirementType[]>(`${this.base}/types`);
   }
 
-  createType(request: { name: string; description?: string }): Observable<RequirementType> {
-  return this.http.post<RequirementType>(`${this.base}/types`, request);
+  createType(request: { name: string; description?: string; areaId?: number }): Observable<RequirementType> {
+    return this.http.post<RequirementType>(`${this.base}/types`, request);
+  }
+
+  getTypesByArea(areaId: number): Observable<RequirementType[]> {
+    return this.http.get<RequirementType[]>(`${this.base}/types/by-area/${areaId}`);
   }
 
   deleteType(id: number): Observable<void> {

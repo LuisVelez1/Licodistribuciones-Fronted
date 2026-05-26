@@ -25,6 +25,7 @@ export interface FixedAssetResponse {
   warrantyDate: string;
   actaFirmada: boolean;
   actaDate: string;
+  assignedToPosition?: string;
 }
 
 export interface FixedAssetRequest {
@@ -51,4 +52,5 @@ export interface FixedAssetRequest {
   warrantyDate: string | null;
   actaFirmada: boolean;
   actaDate: string | null;
+  assignedToPosition?: string;
 }

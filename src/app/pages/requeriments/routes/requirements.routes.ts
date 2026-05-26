@@ -15,6 +15,10 @@ export const REQUIREMENTS_ROUTES: Routes = [
         loadComponent: () => import('../pages/my-requeriments/my-requeriments').then(m => m.MyRequerimentsComponent)
       },
       {
+        path: 'area-requirements',
+        loadComponent: () => import('../pages/area-requirements/area-requirements').then(m => m.AreaRequirementsComponent)
+      },
+      {
         path: 'reports',
         loadComponent: () => import('../pages/reports/reports').then(m => m.ReportsComponent)
       },

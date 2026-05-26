@@ -1,24 +1,36 @@
 <div class="page-container">
   <h2>📂 Tipos de Requerimiento</h2>
 
-  <!-- Formulario nuevo tipo -->
   <div class="form-card">
     <h3>Agregar tipo</h3>
     <div class="form-row">
+
+      <div class="form-group">
+        <label>Área *</label>
+        <select [(ngModel)]="newType.areaId" class="form-input">
+          <option [value]="null">Seleccione un área</option>
+          @for (area of areas; track area.id) {
+            <option [value]="area.id">{{ area.name }}</option>
+          }
+        </select>
+      </div>
+
       <div class="form-group">
         <label>Nombre *</label>
         <input type="text" [(ngModel)]="newType.name"
           placeholder="Ej: Cambio de equipo" class="form-input" />
       </div>
+
       <div class="form-group">
         <label>Descripción</label>
         <input type="text" [(ngModel)]="newType.description"
           placeholder="Descripción breve..." class="form-input" />
       </div>
+
     </div>
     <div class="form-actions">
       <button class="btn-save" (click)="addType()"
-        [disabled]="!newType.name || saving">
+        [disabled]="!newType.name || !newType.areaId || saving">
         {{ saving ? 'Guardando...' : 'Agregar tipo' }}
       </button>
     </div>
@@ -35,6 +47,7 @@
       <div class="type-row">
         <div class="type-info">
           <span class="type-name">{{ t.name }}</span>
+          <span class="type-area">{{ getAreaName(t.areaId) }}</span>
           @if (t.description) {
             <span class="type-desc">{{ t.description }}</span>
           }

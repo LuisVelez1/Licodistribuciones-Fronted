@@ -428,9 +428,285 @@ export class FixedAssetsComponent implements OnInit {
     return sede?.toLowerCase().replace(/\s+/g, '-') ?? '';
   }
 
+  
   generateActa(asset: FixedAssetResponse): void {
-    console.log('Generando acta para:', asset);
+  const logoUrl = 'assets/images/Logo.png';
+
+  const formatDate = (dateStr?: string | null): string => {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  };
+
+  const today = new Date().toLocaleDateString('es-CO', {
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  });
+
+  const specs = [
+    asset.processor ? `Procesador: ${asset.processor}` : null,
+    asset.ram       ? `RAM: ${asset.ram}`               : null,
+    asset.storage   ? `Almacenamiento: ${asset.storage}` : null,
+    asset.os        ? `S.O.: ${asset.os}`               : null,
+    asset.ip        ? `IP: ${asset.ip}`                 : null,
+    asset.mac       ? `MAC: ${asset.mac}`               : null,
+  ].filter(Boolean).join(' &nbsp;|&nbsp; ');
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8"/>
+      <title>Acta de Entrega - ${asset.code ?? asset.name}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+          font-family: 'Georgia', serif;
+          font-size: 11.5px;
+          color: #1a1a1a;
+          background: #fff;
+          padding: 32px 48px;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        /* ── Encabezado ── */
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          border-bottom: 2px solid #8b6c42;
+          padding-bottom: 14px;
+          margin-bottom: 18px;
+        }
+
+        .header-title h1 {
+          font-size: 18px;
+          font-weight: bold;
+          color: #1a1a1a;
+          letter-spacing: 0.3px;
+        }
+
+        .header-title .acta-date {
+          font-size: 11px;
+          color: #555;
+          margin-top: 4px;
+        }
+
+        .header img {
+          height: 60px;
+          object-fit: contain;
+        }
+
+        /* ── Subtítulo ── */
+        .subtitle {
+          margin-bottom: 14px;
+          font-size: 11.5px;
+        }
+
+        .subtitle strong {
+          font-size: 12.5px;
+        }
+
+        /* ── Tabla de datos ── */
+        table.data-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 14px;
+          font-size: 11px;
+        }
+
+        table.data-table td {
+          border: 1px solid #aaa;
+          padding: 6px 10px;
+          vertical-align: top;
+        }
+
+        table.data-table td.label {
+          font-weight: bold;
+          background: #f5f0e8;
+          width: 160px;
+          white-space: nowrap;
+        }
+
+        /* ── Especificaciones ── */
+        .specs-row {
+          background: #f9f6f0;
+          border: 1px solid #aaa;
+          padding: 6px 10px;
+          font-size: 10.5px;
+          color: #333;
+          margin-bottom: 14px;
+          border-radius: 2px;
+        }
+
+        /* ── Observaciones ── */
+        .obs-row {
+          margin-bottom: 14px;
+          font-size: 11px;
+        }
+
+        .obs-row strong { font-size: 11.5px; }
+
+        /* ── Texto legal ── */
+        .legal {
+          font-size: 10.5px;
+          line-height: 1.65;
+          color: #333;
+          text-align: justify;
+          margin-bottom: 12px;
+          padding: 10px 14px;
+          border-left: 3px solid #8b6c42;
+          background: #fdfaf5;
+        }
+
+        /* ── Firmas ── */
+        .firmas {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 32px;
+          gap: 40px;
+        }
+
+        .firma-block {
+          flex: 1;
+          text-align: center;
+        }
+
+        .firma-line {
+          border-top: 1px solid #333;
+          margin-bottom: 6px;
+          margin-top: 40px;
+        }
+
+        .firma-block .nombre {
+          font-weight: bold;
+          font-size: 11px;
+          text-transform: uppercase;
+        }
+
+        .firma-block .cargo {
+          font-size: 10.5px;
+          color: #444;
+        }
+
+        .firma-block .cc-line {
+          margin-top: 10px;
+          border-top: 1px solid #333;
+          padding-top: 4px;
+          font-size: 10px;
+          color: #555;
+          text-align: left;
+        }
+
+        @media print {
+          body { padding: 20px 32px; }
+          button { display: none !important; }
+        }
+      </style>
+    </head>
+    <body>
+
+      <!-- Encabezado -->
+      <div class="header">
+        <div class="header-title">
+          <h1>Acta de entrega activo fijo ${asset.areaName ?? 'TIC'} No. ${asset.id}</h1>
+          <div class="acta-date">${today}</div>
+        </div>
+        <img src="${logoUrl}" alt="Logo empresa" />
+      </div>
+
+      <!-- Subtítulo -->
+      <p class="subtitle">
+        Se hace entrega de <strong>${asset.category ?? 'Activo'}</strong> con las siguientes características:
+      </p>
+
+      <!-- Tabla datos -->
+      <table class="data-table">
+        <tr>
+          <td class="label">Marca y modelo:</td>
+          <td>${[asset.brand, asset.model].filter(Boolean).join(' / ') || '—'}</td>
+          <td class="label">Serial:</td>
+          <td>${asset.serial || '—'}</td>
+        </tr>
+        <tr>
+          <td class="label">Código interno:</td>
+          <td>${asset.code || '—'}</td>
+          <td class="label">Activo fijo:</td>
+          <td>${asset.code || '—'}</td>
+        </tr>
+        ${asset.os || asset.processor ? `
+        <tr>
+          <td class="label">Software instalado:</td>
+          <td colspan="3">${asset.os ?? '—'}</td>
+        </tr>` : ''}
+      </table>
+
+      ${specs ? `<div class="specs-row">⚙️ Especificaciones: ${specs}</div>` : ''}
+
+      <!-- Observaciones -->
+      <div class="obs-row">
+        <strong>Observaciones:</strong> ${asset.description || 'Ninguna'}
+      </div>
+
+      <!-- Texto legal -->
+      <div class="legal">
+        El funcionario que recibe el activo es responsable de reportar cualquier falla o daño al área de TIC,
+        además de seguir las siguientes recomendaciones de uso:
+        • No realizar conexiones eléctricas o de red no autorizadas.
+        • No poner objetos que puedan derramar líquido sobre el activo.
+        • No golpear o dejar caer el activo.
+        • No prestar el activo a personas no autorizadas.
+        • No poner objetos pesados sobre el activo.
+        • En caso de robo, el funcionario deberá informar y anexar copia del respectivo denuncio.
+        • En caso de daño o pérdida el funcionario asumirá el valor total del arreglo o reemplazo del mismo.
+        • El equipo se entrega nuevo en caja con sus respectivos accesorios originales.
+        • No está permitido instalar programas o software que no correspondan a las funciones propias del cargo.
+        <br/><br/>
+        Observaciones: Al momento de recibir el activo aquí especificado se realizaron las pruebas de
+        funcionamiento, se entrega funcional y en buen estado. De acuerdo a lo anterior se hace constar que
+        el activo se encuentra en condiciones adecuadas para recibirlo, con las siguientes salvedades:
+      </div>
+
+      <div class="legal">
+        Adicionalmente deberá tener en cuenta:
+        • No introducir o conectar otros equipos sin autorización que causen daños al software o hardware.
+        • No modificar la configuración del software.
+        • Apagar el equipo al terminar la jornada de trabajo.
+      </div>
+
+      <!-- Firmas -->
+      <div class="firmas">
+        <div class="firma-block">
+          <div style="text-align:left; font-size:11px; margin-bottom:4px;">Hace entrega,</div>
+          <div class="firma-line"></div>
+          <div class="nombre">${asset.assignedToFullName ?? 'Jorge Barbosa'}</div>
+          <div class="cargo">Director TIC</div>
+        </div>
+
+        <div class="firma-block">
+          <div style="text-align:left; font-size:11px; margin-bottom:4px;">Recibe,</div>
+          <div class="firma-line"></div>
+          <div class="nombre">${asset.assignedToFullName ?? '___________________'}</div>
+          <div class="cargo">${asset.assignedToPosition ?? 'Colaborador'}</div>
+          <div class="cc-line">Firma: ___________________________</div>
+          <div class="cc-line">C.C.: ____________________________</div>
+        </div>
+      </div>
+
+      <script>
+        window.onload = () => window.print();
+      </script>
+    </body>
+    </html>
+  `;
+
+  const ventana = window.open('', '_blank', 'width=850,height=1000');
+  if (ventana) {
+    ventana.document.write(html);
+    ventana.document.close();
   }
+}
 
   // ── Modal confirmación eliminar ──────────
 showDeleteConfirm = false;

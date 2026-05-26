@@ -49,29 +49,6 @@ export class AdminComponent {
       children: [
         { label: 'Ver inventario',     route: '/fixed-assets',              icon: 'list' },
       ]
-    },
-    {
-      key: 'academia', label: 'Academia', icon: 'school',
-      children: [
-        { label: 'Gestión de cursos',  route: '/admin/academy',             icon: 'menu_book' },
-        { label: 'Reportes de avance', route: '/admin/academy/reports',     icon: 'bar_chart' },
-      ]
-    },
-    {
-      key: 'reportes', label: 'Reportes', icon: 'assessment',
-      children: [
-        { label: 'Requerimientos',     route: '/admin/reports/requirements', icon: 'assignment_turned_in' },
-        { label: 'Activos por sede',   route: '/admin/reports/assets',       icon: 'place' },
-        { label: 'Cumpleaños del mes', route: '/admin/reports/birthdays',    icon: 'cake' },
-      ]
-    },
-    {
-      key: 'config', label: 'Configuración', icon: 'settings',
-      children: [
-        { label: 'Parámetros generales', route: '/admin/config',             icon: 'tune' },
-        { label: 'Sedes',                route: '/admin/config/sedes',       icon: 'location_city' },
-        { label: 'Noticias',             route: '/home',                     icon: 'newspaper' },
-      ]
-    },
+    }
   ];
 }

@@ -4,9 +4,14 @@
       <h2>📁 Documentos Corporativos</h2>
       <p class="subtitle">{{ filteredDocuments.length }} documento{{ filteredDocuments.length !== 1 ? 's' : '' }}</p>
     </div>
-    <button class="btn-upload" (click)="toggleUploadForm()">
-      ➕ Cargar documento
-    </button>
+    <div class="header-actions">
+      <button class="btn-toggle-view" (click)="toggleView()" [title]="viewMode === 'list' ? 'Ver por carpetas' : 'Ver lista'">
+        {{ viewMode === 'list' ? '📂 Carpetas' : '📋 Lista' }}
+      </button>
+      <button class="btn-upload" (click)="toggleUploadForm()">
+        ➕ Cargar documento
+      </button>
+    </div>
   </div>
 
   @if (showUploadForm) {
@@ -82,19 +87,45 @@
   }
 
   <!-- Filtros -->
-  <div class="documents-filters">
-    <input type="text" [(ngModel)]="searchText" (ngModelChange)="filterDocuments()" placeholder="🔍 Buscar documento..." class="search-input" />
-    <select [(ngModel)]="filterCategory" (ngModelChange)="filterDocuments()" class="filter-select">
-      <option value="">Todas las categorías</option>
-      <option value="Políticas">Políticas</option>
-      <option value="Manuales">Manuales</option>
-      <option value="Formatos">Formatos</option>
-      <option value="Reglamentos">Reglamentos</option>
-      <option value="Actas">Actas</option>
-      <option value="Contratos">Contratos</option>
-      <option value="Otros">Otros</option>
-    </select>
-  </div>
+  @if (viewMode === 'list' || selectedArea !== null) {
+    <div class="documents-filters">
+      <input type="text" [(ngModel)]="searchText" (ngModelChange)="filterDocuments()" placeholder="🔍 Buscar documento..." class="search-input" />
+      <select [(ngModel)]="filterCategory" (ngModelChange)="filterDocuments()" class="filter-select">
+        <option value="">Todas las categorías</option>
+        <option value="Políticas">Políticas</option>
+        <option value="Manuales">Manuales</option>
+        <option value="Formatos">Formatos</option>
+        <option value="Reglamentos">Reglamentos</option>
+        <option value="Actas">Actas</option>
+        <option value="Contratos">Contratos</option>
+        <option value="Otros">Otros</option>
+      </select>
+    </div>
+  }
+
+  <!-- ── Vista carpetas ── -->
+  @if (viewMode === 'folders' && selectedArea === null) {
+    <div class="folders-grid">
+      @for (folder of areaFolders; track folder.name) {
+        <div class="folder-card" (click)="openFolder(folder.name)">
+          <span class="folder-icon">📂</span>
+          <div class="folder-info">
+            <span class="folder-name">{{ folder.name }}</span>
+            <span class="folder-count">{{ folder.count }} documento{{ folder.count !== 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Dentro de una carpeta ── -->
+  @if (viewMode === 'folders' && selectedArea !== null) {
+    <div class="folder-breadcrumb">
+      <button class="btn-back" (click)="backToFolders()">← Carpetas</button>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">{{ selectedArea }}</span>
+    </div>
+  }
 
   <!-- Lista -->
   <div class="documents-grid">
