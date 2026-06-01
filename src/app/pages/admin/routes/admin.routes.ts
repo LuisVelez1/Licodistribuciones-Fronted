@@ -19,10 +19,6 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'requirements',             loadComponent: () => import('../requirements/requirements-list/requirements-list').then(m => m.RequirementListComponent) },
       { path: 'requirements/create',      loadComponent: () => import('../requirements/create-type-requirement/create-type-requirement').then(m => m.CreateTypeRequirementComponent) },
 
-      //{ path: 'reports/requirements',     loadComponent: () => import('../reports/reports-admin').then(m => m.ReportsAdminComponent) },
-      //{ path: 'reports/assets',           loadComponent: () => import('../reports/reports-admin').then(m => m.ReportsAdminComponent) },
-      //{ path: 'reports/birthdays',        loadComponent: () => import('../reports/reports-admin').then(m => m.ReportsAdminComponent) },
-
       { path: '', redirectTo: 'users', pathMatch: 'full' }
     ]
   }
