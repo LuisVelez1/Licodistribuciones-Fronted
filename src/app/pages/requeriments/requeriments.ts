@@ -3,6 +3,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../core/services/user.service';
 import { User } from '../../core/models/user.model';
+import { AGENT_KEYWORDS } from '../../core/constants/agents-keywords.constants';
 
 @Component({
   selector: 'app-requeriments',
@@ -15,7 +16,7 @@ export class RequerimentsComponent implements OnInit {
 
   currentUser: User | null = null;
 
-  private readonly AGENT_KEYWORDS = ['coordinador', 'jefe', 'director'];
+  private readonly AGENT_KEYWORDS = AGENT_KEYWORDS;
 
   constructor(private userService: UserService) {}
 

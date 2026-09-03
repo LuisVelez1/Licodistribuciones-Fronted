@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../../core/services/user.service';
 import { UserA } from '../../../../core/models/user-admin.model';
+import { AGENT_KEYWORDS } from '../../../../core/constants/agents-keywords.constants';
 
 @Component({
   standalone: true,
@@ -16,7 +17,7 @@ export class AgentsComponent implements OnInit {
   agents: UserA[] = [];
   loading = true;
 
-  private readonly AGENT_KEYWORDS = ['lider', 'líder', 'director', 'gerente', 'coordinador'];
+  private readonly AGENT_KEYWORDS = AGENT_KEYWORDS;
 
   constructor(private userService: UserService) {}
 

@@ -20,6 +20,11 @@
       </div>
 
       <div class="field">
+        <label>Cédula</label>
+        <input type="text" formControlName="cedula">
+      </div>
+
+      <div class="field">
         <label>Email</label>
         <input type="email" formControlName="email">
       </div>
@@ -48,10 +53,15 @@
         <input type="text" formControlName="position">
       </div>
 
-      <div class="field">
-        <label>Sede</label>
-        <input type="text" formControlName="sede">
-      </div>
+     <div class="field">
+      <label>Sede</label>
+      <select formControlName="sede">
+        <option value="">Seleccionar...</option>
+        @for (s of sedes; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
 
       <div class="field">
         <label>Área</label>

@@ -1,11 +1,7 @@
 node_modules
 dist
+.angular
 .git
 .gitignore
 *.md
-.vscode
-.idea
-.angular
-coverage
-.env
-npm-debug.log
+karma.conf.js

@@ -1,0 +1,1 @@
+export const SEDES = ['Quindío', 'Boyacá', 'Chocó', 'San Andrés'];

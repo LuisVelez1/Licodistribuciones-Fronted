@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { UserA } from '../../../core/models/user-admin.model';
+import { SEDES } from '../../../core/constants/sedes.contants';
 
 @Component({
   selector: 'app-update-users',
@@ -32,6 +33,7 @@ export class UpdateUsersComponent implements OnInit {
   success: string | null = null;
   showDropdown = false;
   areasLoaded = false;
+  sedes = SEDES;
 
   users: UserA[] = [];
   filteredUsers: UserA[] = [];

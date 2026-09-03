@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../../core/services/user.service';
-import { RequirementsService, RequirementResponse, RequirementUpdateRequest } from '../../../../core/services/requriments.service';
+import { RequirementsService, RequirementResponse, RequirementUpdateRequest, RequirementComment } from '../../../../core/services/requriments.service';
 import { User } from '../../../../core/models/user.model';
 
 @Component({
@@ -17,6 +17,9 @@ export class AreaRequirementsComponent implements OnInit {
   currentUser: User | null = null;
   requirements: RequirementResponse[] = [];
   loading = true;
+  commentsMap: Record<number, RequirementComment[]> = {};
+  newCommentText: Record<number, string> = {};
+  loadingComments: Record<number, boolean> = {};
 
   // Modal edición
   editingReq: RequirementResponse | null = null;
@@ -50,6 +53,7 @@ export class AreaRequirementsComponent implements OnInit {
       next: (data) => {
         this.requirements = data;
         this.loading = false;
+        data.forEach(req => this.loadComments(req.id));
       },
       error: (err) => {
         console.error('Error cargando requerimientos del área', err);
@@ -95,6 +99,37 @@ export class AreaRequirementsComponent implements OnInit {
         this.requirements = this.requirements.filter(r => r.id !== req.id);
       },
       error: (err) => console.error('Error eliminando requerimiento', err)
+    });
+  }
+
+  loadComments(reqId: number): void {
+    this.loadingComments[reqId] = true;
+    this.requirementsService.getComments(reqId).subscribe({
+      next: (comments) => {
+        this.commentsMap[reqId] = comments;
+        this.loadingComments[reqId] = false;
+      },
+      error: (err) => {
+        console.error('Error cargando comentarios', err);
+        this.loadingComments[reqId] = false;
+      }
+    });
+  }
+
+  sendComment(reqId: number): void {
+    const text = this.newCommentText[reqId]?.trim();
+    if (!text) return;
+
+    this.requirementsService.createComment(reqId, text).subscribe({
+      next: (comment) => {
+        if (!this.commentsMap[reqId]) this.commentsMap[reqId] = [];
+        this.commentsMap[reqId].push(comment);
+        this.newCommentText[reqId] = '';
+      },
+      error: (err) => {
+        console.error('Error enviando comentario', err);
+        alert(err?.error?.message || 'No tienes permiso para responder este requerimiento.');
+      }
     });
   }
 

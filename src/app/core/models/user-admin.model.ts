@@ -1,6 +1,7 @@
 export interface UserA {
   birthDate: string;
   fullName: any;
+  cedula: string;
   areaName: any;
   id: string;
   firstName: string;

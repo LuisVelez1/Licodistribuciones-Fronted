@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
+import { SEDES } from '../../../core/constants/sedes.contants';
 
 @Component({
   selector: 'app-create-users',
@@ -29,12 +30,14 @@ export class CreateUsersComponent implements OnInit {
   loading = false;
   error: string | null = null;
   success: string | null = null;
+  sedes = SEDES;
   
   areas: any[] = [];
 
   form = this.fb.nonNullable.group({
     firstName: ['', [Validators.required, Validators.minLength(2)]],
     lastName: ['', [Validators.required, Validators.minLength(2)]],
+    cedula: ['', [Validators.required, Validators.pattern(/^[0-9]{6,15}$/)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     role: ['ADMIN', Validators.required],

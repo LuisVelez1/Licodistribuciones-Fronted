@@ -9,6 +9,7 @@ import { AssetsReportComponent } from './assets-report.component';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SEDES } from '../../core/constants/sedes.contants';
 
 interface AssetForm extends Partial<FixedAssetRequest> {
   ramType?: string;
@@ -61,6 +62,8 @@ export class FixedAssetsComponent implements OnInit {
   // ── Auth ────────────────────────────────────────
   currentUserId = '';
   isAdmin = false;
+  currentUserFullName = '';
+  currentUserPosition = '';
 
   // ── Búsqueda empleados ──────────────────────────
   employeeSearch = '';
@@ -81,11 +84,11 @@ export class FixedAssetsComponent implements OnInit {
   // ── Catálogos ────────────────────────────────────
   readonly categories = [
     'Portátil', 'PC de Escritorio', 'PC Mini / All-in-One',
-    'Monitor', 'Impresora', 'Teléfono IP', 'Servidor',
-    'Switch / Router', 'UPS', 'Proyector', 'Tablet', 'Otro'
+    'Monitor', 'Impresora', 'Teléfono IP', 'Teléfono celular', 'Servidor',
+    'Switch / Router', 'UPS', 'Proyector', 'Tablet', 'CCTV', 'Otro'
   ];
 
-  readonly sedes = ['Quindío', 'Boyacá', 'Chocó', 'San Andrés'];
+  readonly sedes = SEDES;
 
   get totalValue(): number {
     return this.assets.reduce((sum, a) => sum + (a.acquisitionValue ?? 0), 0);
@@ -110,6 +113,8 @@ export class FixedAssetsComponent implements OnInit {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
         this.currentUserId = user.id;
+        this.currentUserFullName = `${user.firstName} ${user.lastName}`;
+        this.currentUserPosition = user.position ?? 'Director TIC';
         this.isAdmin = !!(
           user.roles?.includes('ADMIN') || 
           user.roles?.includes('SUPER_ADMIN')
@@ -409,9 +414,9 @@ export class FixedAssetsComponent implements OnInit {
   getCategoryIcon(category: string): string {
     const icons: Record<string, string> = {
       'Portátil': '💻', 'PC de Escritorio': '🖥️', 'PC Mini / All-in-One': '🖥️',
-      'Monitor': '🖥️', 'Impresora': '🖨️', 'Teléfono IP': '☎️',
+      'Monitor': '🖥️', 'Impresora': '🖨️', 'Teléfono IP': '☎️', 'Teléfono celular': '📱',
       'Servidor': '🗄️', 'Switch / Router': '🔌', 'UPS': '🔋',
-      'Proyector': '📽️', 'Tablet': '📱', 'Otro': '📦'
+      'Proyector': '📽️', 'Tablet': '📱', 'CCTV': '📹', 'Otro': '📦'
     };
     return icons[category] ?? '📦';
   }
@@ -462,7 +467,7 @@ export class FixedAssetsComponent implements OnInit {
 
         body {
           font-family: 'Georgia', serif;
-          font-size: 11.5px;
+          font-size: 13px;
           color: #1a1a1a;
           background: #fff;
           padding: 32px 48px;
@@ -481,14 +486,14 @@ export class FixedAssetsComponent implements OnInit {
         }
 
         .header-title h1 {
-          font-size: 18px;
+          font-size: 19.5px;
           font-weight: bold;
           color: #1a1a1a;
           letter-spacing: 0.3px;
         }
 
         .header-title .acta-date {
-          font-size: 11px;
+          font-size: 12.5px;
           color: #555;
           margin-top: 4px;
         }
@@ -501,11 +506,11 @@ export class FixedAssetsComponent implements OnInit {
         /* ── Subtítulo ── */
         .subtitle {
           margin-bottom: 14px;
-          font-size: 11.5px;
+          font-size: 13px;
         }
 
         .subtitle strong {
-          font-size: 12.5px;
+          font-size: 14px;
         }
 
         /* ── Tabla de datos ── */
@@ -513,7 +518,7 @@ export class FixedAssetsComponent implements OnInit {
           width: 100%;
           border-collapse: collapse;
           margin-bottom: 14px;
-          font-size: 11px;
+          font-size: 12.5px;
         }
 
         table.data-table td {
@@ -534,7 +539,7 @@ export class FixedAssetsComponent implements OnInit {
           background: #f9f6f0;
           border: 1px solid #aaa;
           padding: 6px 10px;
-          font-size: 10.5px;
+          font-size: 12px;
           color: #333;
           margin-bottom: 14px;
           border-radius: 2px;
@@ -543,14 +548,14 @@ export class FixedAssetsComponent implements OnInit {
         /* ── Observaciones ── */
         .obs-row {
           margin-bottom: 14px;
-          font-size: 11px;
+          font-size: 12.5px;
         }
 
-        .obs-row strong { font-size: 11.5px; }
+        .obs-row strong { font-size: 13px; }
 
         /* ── Texto legal ── */
         .legal {
-          font-size: 10.5px;
+          font-size: 12px;
           line-height: 1.65;
           color: #333;
           text-align: justify;
@@ -581,12 +586,12 @@ export class FixedAssetsComponent implements OnInit {
 
         .firma-block .nombre {
           font-weight: bold;
-          font-size: 11px;
+          font-size: 12.5px;
           text-transform: uppercase;
         }
 
         .firma-block .cargo {
-          font-size: 10.5px;
+          font-size: 12px;
           color: #444;
         }
 
@@ -594,7 +599,7 @@ export class FixedAssetsComponent implements OnInit {
           margin-top: 10px;
           border-top: 1px solid #333;
           padding-top: 4px;
-          font-size: 10px;
+          font-size: 11.5px;
           color: #555;
           text-align: left;
         }
@@ -610,7 +615,7 @@ export class FixedAssetsComponent implements OnInit {
       <!-- Encabezado -->
       <div class="header">
         <div class="header-title">
-          <h1>Acta de entrega activo fijo ${asset.areaName ?? 'TIC'} No. ${asset.id}</h1>
+          <h1>Acta de entrega activo fijo ${asset.areaName ?? 'TIC'} No. ${asset.code}</h1>
           <div class="acta-date">${today}</div>
         </div>
         <img src="${logoUrl}" alt="Logo empresa" />
@@ -680,7 +685,7 @@ export class FixedAssetsComponent implements OnInit {
         <div class="firma-block">
           <div style="text-align:left; font-size:11px; margin-bottom:4px;">Hace entrega,</div>
           <div class="firma-line"></div>
-          <div class="nombre">${asset.assignedToFullName ?? 'Jorge Barbosa'}</div>
+          <div class="nombre">Jorge Iván Barbosa Vargas</div>
           <div class="cargo">Director TIC</div>
         </div>
 
@@ -700,8 +705,7 @@ export class FixedAssetsComponent implements OnInit {
     </body>
     </html>
   `;
-
-  const ventana = window.open('', '_blank', 'width=850,height=1000');
+  const ventana = window.open('', '_blank', `width=${window.screen.width},height=${window.screen.height},left=0,top=0`);
   if (ventana) {
     ventana.document.write(html);
     ventana.document.close();

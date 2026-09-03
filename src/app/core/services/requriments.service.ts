@@ -3,6 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../constants/api.constants';
 
+export interface RequirementComment {
+  id: number;
+  userId: string;
+  author: string;
+  comment: string;
+  createdAt: string;
+}
+
 export interface RequirementType {
   id: number;
   name: string;
@@ -102,5 +110,13 @@ export class RequirementsService {
 
   deleteType(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/types/${id}`);
+  }
+
+  createComment(requirementId: number, comment: string): Observable<RequirementComment> {
+    return this.http.post<RequirementComment>(`${this.base}/${requirementId}/comments`, { comment });
+  }
+
+  getComments(requirementId: number): Observable<RequirementComment[]> {
+    return this.http.get<RequirementComment[]>(`${this.base}/${requirementId}/comments`);
   }
 }

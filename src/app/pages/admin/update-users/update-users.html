@@ -67,7 +67,12 @@
 
       <div class="field">
         <label>Sede</label>
-        <input type="text" formControlName="sede">
+        <select formControlName="sede">
+          <option value="">Seleccionar...</option>
+          @for (s of sedes; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
       </div>
 
       <div class="field">

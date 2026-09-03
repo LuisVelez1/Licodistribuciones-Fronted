@@ -48,6 +48,37 @@
             </div>
           }
 
+          <div class="comments-section">
+            <h4>💬 Respuestas</h4>
+
+            @if (loadingComments[req.id]) {
+              <p class="comments-loading">Cargando respuestas...</p>
+            } @else if (commentsMap[req.id]?.length) {
+              <div class="comments-list">
+                @for (c of commentsMap[req.id]; track c.id) {
+                  <div class="comment-item">
+                    <div class="comment-header">
+                      <strong>{{ c.author }}</strong>
+                      <span class="comment-date">{{ c.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                    <p class="comment-text">{{ c.comment }}</p>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="no-comments">Aún no hay respuestas.</p>
+            }
+
+            <div class="comment-form">
+              <textarea
+                [(ngModel)]="newCommentText[req.id]"
+                placeholder="Escribe una respuesta..."
+                rows="2"
+              ></textarea>
+              <button class="btn-comment" (click)="sendComment(req.id)">Responder</button>
+            </div>
+          </div>
+
           <div class="card-footer">
             <div class="meta-left">
               <span class="req-id">#{{ req.id }}</span>
